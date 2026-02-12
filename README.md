@@ -1,36 +1,130 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# E-Absensi - Sistem Absensi Karyawan Fullstack
 
-## Getting Started
+## Deskripsi
+Aplikasi berbasis web untuk mencatat kehadiran karyawan secara real-time menggunakan validasi lokasi (Geolocation) dan waktu server. Aplikasi ini membedakan hak akses antara **Karyawan** (melakukan absensi) dan **Admin** (rekapitulasi & manajemen).
 
-First, run the development server:
+## Teknologi yang Digunakan
+- **Framework:** Next.js 16 (App Router)
+- **Bahasa:** TypeScript
+- **Database:** PostgreSQL
+- **ORM:** Drizzle ORM
+- **Styling:** Tailwind CSS
+- **UI Components:** shadcn/ui
+- **Authentication:** Better Auth
+
+## Instalasi
+
+### Metode 1: Menggunakan Docker (Direkomendasikan)
+
+1. Pastikan Docker Desktop terinstall dan berjalan
+2. Buat file `.env.local` di root direktori (lihat `.env.example` sebagai referensi)
+3. Jalankan perintah berikut:
+
+```bash
+# Mode development (dengan hot-reload)
+docker-compose -f docker-compose.dev.yml up --build
+
+# Mode production
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
+Aplikasi akan berjalan di http://localhost:3000
+
+### Metode 2: Instalasi Manual
+
+1. Clone repositori ini
+2. Jalankan perintah berikut:
+
+```bash
+npm install
+```
+
+3. Buat file `.env.local` di root direktori dan tambahkan variabel lingkungan berikut:
+
+```env
+DATABASE_URL="postgresql://username:password@localhost:5432/absensi_db"
+AUTH_SECRET="your-super-secret-key-here"
+NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+```
+
+4. Jalankan migrasi database:
+
+```bash
+npx drizzle-kit push
+```
+
+5. Jalankan aplikasi:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Aplikasi akan berjalan di http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Fitur Utama
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Autentikasi
+- Login/registrasi dengan email dan password
+- Proteksi route berdasarkan peran (admin/employee)
 
-## Learn More
+### Dashboard Karyawan
+- Kartu status kehadiran harian
+- Tombol absensi masuk/keluar dengan validasi lokasi
+- Riwayat kehadiran
+- Form pengajuan cuti
 
-To learn more about Next.js, take a look at the following resources:
+### Dashboard Admin
+- Monitoring kehadiran real-time
+- Manajemen data karyawan
+- Persetujuan pengajuan cuti
+- Laporan kehadiran
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Struktur Proyek
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+my-attendance-app/
+├── app/
+│   ├── (auth)/             # Route Group untuk Auth
+│   │   ├── login/
+│   │   └── sign-up/
+│   ├── (dashboard)/        # Layout terproteksi untuk User
+│   │   ├── page.tsx        # Dashboard Karyawan
+│   │   ├── history/        # Riwayat Absensi
+│   │   └── leave/          # Halaman Cuti
+│   ├── (admin)/            # Layout terproteksi untuk Admin
+│   │   ├── admin/
+│   │   │   ├── employees/  # CRUD Karyawan
+│   │   │   └── reports/    # Laporan
+├── components/
+│   ├── ui/                 # Komponen shadcn (Button, Card, dll)
+│   ├── forms/              # Form Login, Form Absen
+│   ├── layout/             # Sidebar, Navbar
+│   └── shared/             # Komponen reusable (StatusBadge, Maps)
+├── db/
+│   ├── schema.ts           # Definisi Tabel Drizzle
+│   ├── index.ts            # Koneksi Database
+│   └── migrations/         # File migrasi SQL
+├── lib/
+│   ├── auth.ts             # Konfigurasi Better Auth
+│   ├── auth-client.ts      # Client config Better Auth
+│   ├── utils.ts            # Helper function (cn, date formatter)
+│   └── geolocation.ts      # Fungsi hitung jarak (Haversine Formula)
+├── actions/                # Server Actions (Logika Backend)
+│   ├── attendance.ts       # function clockIn(), clockOut()
+│   └── user.ts             # function createUser(), updateUser()
+├── drizzle.config.ts       # Config Drizzle
+├── middleware.ts           # Middleware proteksi route
+├── Dockerfile              # Konfigurasi Docker untuk aplikasi
+├── docker-compose.yml      # Konfigurasi Docker Compose
+├── docker-compose.dev.yml  # Konfigurasi untuk development
+├── docker-compose.prod.yml # Konfigurasi untuk production
+├── .dockerignore           # File-file yang diabaikan saat build Docker
+└── package.json
+```
 
-## Deploy on Vercel
+## Docker Setup
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Lihat file `SETUP_DOCKER.md` untuk panduan lengkap penggunaan Docker.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Kontribusi
+Silakan buat pull request untuk kontribusi. Pastikan untuk menjalankan test sebelum mengirimkan perubahan.

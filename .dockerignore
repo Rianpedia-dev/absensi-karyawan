@@ -1,0 +1,46 @@
+# Dependencies
+node_modules
+
+# Environment variables
+.env*
+!.env.example
+
+# Next.js
+.next
+out
+
+# Database
+*.db
+*.db-journal
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# IDE
+.vscode
+.idea
+
+# Git
+.git
+.gitignore
+
+# Build outputs
+dist
+build
+coverage
+
+# Temporary files
+tmp
+temp
+*.tmp
+*.temp
+
+# Documentation
+*.md
+!README.md
+!ARCHITECTURE.md
+!DOCKER_GUIDE.md
