@@ -56,8 +56,49 @@ export default function ReportsPage() {
   };
 
   const handleExport = () => {
-    // Di sini akan diimplementasikan fungsi ekspor ke CSV/Excel
-    alert('Fungsi ekspor laporan akan diimplementasikan');
+    if (reportData.length === 0) {
+      alert('Tidak ada data untuk diekspor');
+      return;
+    }
+
+    // Header CSV
+    const headers = ['Nama', 'Departemen', 'Tanggal', 'Jam Masuk', 'Jam Pulang', 'Status'];
+
+    // Konversi status ke bahasa Indonesia
+    const getStatusLabel = (status: string) => {
+      switch (status) {
+        case 'present': return 'Hadir';
+        case 'late': return 'Terlambat';
+        case 'early_departure': return 'Pulang Awal';
+        case 'absent': return 'Tidak Hadir';
+        default: return status;
+      }
+    };
+
+    // Buat isi CSV
+    const csvContent = [
+      headers.join(';'), // Menggunakan titik koma sebagai pemisah untuk kompatibilitas Excel di regional Indonesia
+      ...reportData.map(record => [
+        `"${record.user?.name || '-'}"`,
+        `"${record.user?.department || '-'}"`,
+        `"${formatDateOnly(new Date(record.date))}"`,
+        `"${record.checkInTime ? formatTime(new Date(record.checkInTime)) : '-'}"`,
+        `"${record.checkOutTime ? formatTime(new Date(record.checkOutTime)) : '-'}"`,
+        `"${getStatusLabel(record.status)}"`
+      ].join(';'))
+    ].join('\n');
+
+    // Tambahkan Byte Order Mark (BOM) agar Excel mengenali encoding UTF-8 dengan benar
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `laporan-absensi-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (isPending || loading) {

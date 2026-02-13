@@ -3,7 +3,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { db } from '@/db';
 import * as schema from '@/db/schema';
 import { types } from 'pg';
-import { admin } from 'better-auth/plugins';
+import { admin } from 'better-auth/plugins/admin';
 
 // Force node-postgres to return timestamps as Date objects
 const parseDate = (val: string | null) => {
@@ -19,16 +19,15 @@ export const auth = betterAuth({
     schema: schema,
   }),
   plugins: [
-    admin() // Biarkan default dulu untuk melihat apakah ini menyelesaikan masalah tipe di user.ts
+    admin({
+      adminRole: 'admin',
+      // @ts-ignore
+      roles: ['admin', 'employee'],
+    })
   ],
   baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'),
   user: {
     additionalFields: {
-      role: {
-        type: 'string',
-        defaultValue: 'employee',
-        input: false,
-      },
       department: {
         type: 'string',
         required: false,

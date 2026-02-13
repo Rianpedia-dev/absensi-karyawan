@@ -36,6 +36,7 @@ export default function EmployeeManagementPage() {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('employee');
   const [department, setDepartment] = useState('');
+  const [password, setPassword] = useState('');
 
 
   // Fungsi untuk memuat data karyawan
@@ -70,7 +71,7 @@ export default function EmployeeManagementPage() {
         await createUser({
           name,
           email,
-          password: 'defaultPassword123',
+          password: password || 'defaultPassword123',
           role: role as any,
           department
         });
@@ -81,6 +82,7 @@ export default function EmployeeManagementPage() {
       setEmail('');
       setRole('employee');
       setDepartment('');
+      setPassword('');
       setIsDialogOpen(false);
       setEditingEmployee(null);
 
@@ -138,6 +140,7 @@ export default function EmployeeManagementPage() {
                 setEmail('');
                 setRole('employee');
                 setDepartment('');
+                setPassword('');
               }}>
                 Tambah Karyawan
               </Button>
@@ -175,6 +178,20 @@ export default function EmployeeManagementPage() {
                     required
                   />
                 </div>
+
+                {!editingEmployee && (
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Kata Sandi</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required={!editingEmployee}
+                      placeholder="Masukkan kata sandi awal"
+                    />
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="role">Peran</Label>

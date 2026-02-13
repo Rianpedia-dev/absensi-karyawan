@@ -26,6 +26,9 @@ export const user = pgTable('user', {
   image: text('image'),
   role: text('role').$type<Role>().default('employee'),
   department: text('department'),
+  banned: boolean('banned').default(false),
+  banReason: text('ban_reason'),
+  banExpires: timestamp('ban_expires', { mode: 'date' }),
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { mode: 'date' }).notNull().defaultNow(),
 });

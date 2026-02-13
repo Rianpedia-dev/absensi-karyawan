@@ -6,11 +6,6 @@ const client = createAuthClient({
   plugins: [
     inferAdditionalFields({
       user: {
-        role: {
-          type: "string",
-          required: false,
-          input: false,
-        },
         department: {
           type: "string",
           required: false,

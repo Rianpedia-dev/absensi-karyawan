@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { signIn } from '@/lib/auth-client';
+import { signIn, authClient, type ExtendedUser } from '@/lib/auth-client';
 import Link from 'next/link';
 
 export default function LoginPage() {
@@ -29,13 +29,19 @@ export default function LoginPage() {
       const response = await signIn.email({
         email,
         password,
-        callbackURL: '/dashboard', // Arahkan ke dashboard setelah login berhasil
       });
 
       if (response?.error) {
         setError(response.error.message || 'Login failed');
       } else {
-        router.push('/dashboard');
+        // Fetch session to get user role
+        const { data: session } = await authClient.getSession();
+
+        if ((session?.user as ExtendedUser)?.role === 'admin') {
+          router.push('/admin');
+        } else {
+          router.push('/dashboard');
+        }
         router.refresh();
       }
     } catch (err) {

@@ -8,7 +8,6 @@ import { auth } from '@/lib/auth';
 
 export async function getUsers() {
   try {
-    // Dapatkan session pengguna
     const session = await auth.api.getSession({
       headers: await headers(),
     });
@@ -17,7 +16,6 @@ export async function getUsers() {
       throw new Error("Unauthorized or insufficient permissions");
     }
 
-    // Ambil semua pengguna kecuali password
     const userRecords = await db
       .select({
         id: user.id,
@@ -38,7 +36,6 @@ export async function getUsers() {
 
 export async function getUserById(userId: string) {
   try {
-    // Dapatkan session pengguna
     const session = await auth.api.getSession({
       headers: await headers(),
     });
@@ -47,7 +44,6 @@ export async function getUserById(userId: string) {
       throw new Error("Unauthorized or insufficient permissions");
     }
 
-    // Ambil pengguna berdasarkan ID
     const userRecord = await db
       .select({
         id: user.id,
@@ -80,43 +76,78 @@ export async function createUser(userData: {
   department: string;
 }) {
   try {
-    // Dapatkan session pengguna
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session || session.user.role !== 'admin') {
-      throw new Error("Unauthorized or insufficient permissions");
+      throw new Error("Unauthorized: Hanya admin yang dapat membuat pengguna.");
     }
 
-    // Cek apakah email sudah terdaftar
-    const existingUser = await db
-      .select()
-      .from(user)
-      .where(eq(user.email, userData.email));
-
-    if (existingUser.length > 0) {
-      throw new Error("Email sudah terdaftar");
+    // Cek Duplikasi
+    const existing = await db.select().from(user).where(eq(user.email, userData.email)).limit(1);
+    if (existing.length > 0) {
+      throw new Error("Email sudah terdaftar.");
     }
 
-    // Buat pengguna baru menggunakan Better Auth API (Admin Plugin)
-    // Ini memastikan hashing password konsisten (scrypt) dan tabel account terisi otomatis
     const authApi = auth as any;
-    const newUser = await authApi.api.admin.createUser({
-      headers: await headers(),
-      body: {
-        email: userData.email,
-        password: userData.password,
-        name: userData.name,
-        role: userData.role as any, // Cast as any because of custom role mapping in admin plugin
-        department: userData.department,
-      },
-    });
+    const adminApi = authApi.api?.admin || (authApi.api?.adminUpdateUser ? authApi.api : null) || authApi.admin;
 
-    return newUser as any;
-  } catch (error) {
-    console.error('Error in createUser:', error);
-    throw new Error("Terjadi kesalahan saat membuat pengguna baru");
+    if (!adminApi) {
+      throw new Error("Admin API tidak terkonfigurasi.");
+    }
+
+    try {
+      console.log('DEBUG: Attempting to create user via Admin API...');
+      const result = await adminApi.createUser({
+        headers: await headers(),
+        body: {
+          email: userData.email,
+          password: userData.password,
+          name: userData.name,
+          role: userData.role,
+        },
+      });
+
+      if (result?.user?.id && userData.department) {
+        await db.update(user)
+          .set({ department: userData.department })
+          .where(eq(user.id, result.user.id));
+      }
+
+      return result;
+    } catch (adminError: any) {
+      const msg = (adminError.message || adminError.error?.message || '').toLowerCase();
+
+      // Jika error adalah soal otorisasi (khusus Vercel)
+      if (msg.includes('not allowed') || msg.includes('unauthorized') || adminError.status === 403) {
+        console.warn('DEBUG: Admin API unauthorized, using fallback signUpEmail...');
+        const fbResult = await auth.api.signUpEmail({
+          body: {
+            email: userData.email,
+            password: userData.password,
+            name: userData.name,
+          }
+        });
+
+        if (fbResult?.user) {
+          await db.update(user)
+            .set({
+              role: userData.role,
+              department: userData.department
+            })
+            .where(eq(user.id, fbResult.user.id));
+          return fbResult;
+        }
+      }
+
+      console.error('DEBUG: Better Auth Error Details:', adminError);
+      throw adminError;
+    }
+  } catch (error: any) {
+    console.error('Error in createUser server action:', error);
+    const finalMsg = error.message || (error.error?.message) || "Gagal membuat pengguna.";
+    throw new Error(finalMsg);
   }
 }
 
@@ -130,7 +161,6 @@ export async function updateUser(
   }>
 ) {
   try {
-    // Dapatkan session pengguna
     const session = await auth.api.getSession({
       headers: await headers(),
     });
@@ -139,34 +169,30 @@ export async function updateUser(
       throw new Error("Unauthorized or insufficient permissions");
     }
 
-    // Update pengguna
-    const updatedUser = await db
-      .update(user)
-      .set(userData)
-      .where(eq(user.id, userId))
-      .returning({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        department: user.department,
-        createdAt: user.createdAt,
-      });
+    const updateData: any = {};
+    if (userData.name) updateData.name = userData.name;
+    if (userData.email) updateData.email = userData.email;
+    if (userData.role) updateData.role = userData.role;
+    if (userData.department !== undefined) updateData.department = userData.department;
 
-    if (updatedUser.length === 0) {
+    const result = await db.update(user)
+      .set(updateData)
+      .where(eq(user.id, userId))
+      .returning();
+
+    if (result.length === 0) {
       throw new Error("Pengguna tidak ditemukan");
     }
 
-    return updatedUser[0];
-  } catch (error) {
+    return result[0];
+  } catch (error: any) {
     console.error('Error in updateUser:', error);
-    throw new Error("Terjadi kesalahan saat memperbarui pengguna");
+    throw new Error(error.message || "Terjadi kesalahan saat memperbarui pengguna");
   }
 }
 
 export async function deleteUser(userId: string) {
   try {
-    // Dapatkan session pengguna
     const session = await auth.api.getSession({
       headers: await headers(),
     });
@@ -175,21 +201,23 @@ export async function deleteUser(userId: string) {
       throw new Error("Unauthorized or insufficient permissions");
     }
 
-    // Hapus pengguna
-    await db
-      .delete(user)
-      .where(eq(user.id, userId));
+    const result = await db.delete(user)
+      .where(eq(user.id, userId))
+      .returning();
+
+    if (result.length === 0) {
+      throw new Error("Pengguna tidak ditemukan");
+    }
 
     return { success: true, message: "Pengguna berhasil dihapus" };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in deleteUser:', error);
-    throw new Error("Terjadi kesalahan saat menghapus pengguna");
+    throw new Error(error.message || "Terjadi kesalahan saat menghapus pengguna");
   }
 }
 
 export async function getUserAttendance(userId: string) {
   try {
-    // Dapatkan session pengguna
     const session = await auth.api.getSession({
       headers: await headers(),
     });
@@ -198,7 +226,6 @@ export async function getUserAttendance(userId: string) {
       throw new Error("Unauthorized or insufficient permissions");
     }
 
-    // Ambil data absensi pengguna
     const attendanceRecords = await db
       .select()
       .from(attendances)
