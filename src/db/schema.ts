@@ -24,7 +24,6 @@ export const user = pgTable('user', {
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').notNull().default(false), // Better Auth uses boolean in Drizzle Postgres many times
   image: text('image'),
-  password: text('password'), // Better Auth stores password in 'account' table, so this can be null here
   role: text('role').$type<Role>().default('employee'),
   department: text('department'),
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),

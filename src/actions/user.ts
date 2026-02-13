@@ -5,7 +5,6 @@ import { user, attendances, leaves } from '@/db/schema';
 import { eq, and, gte, lte } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
-import { hash } from 'bcryptjs';
 
 export async function getUsers() {
   try {
@@ -100,30 +99,21 @@ export async function createUser(userData: {
       throw new Error("Email sudah terdaftar");
     }
 
-    // Hash password
-    const hashedPassword = await hash(userData.password, 10);
-
-    // Buat pengguna baru
-    const newUser = await db
-      .insert(user)
-      .values({
-        id: crypto.randomUUID(),
-        name: userData.name,
+    // Buat pengguna baru menggunakan Better Auth API (Admin Plugin)
+    // Ini memastikan hashing password konsisten (scrypt) dan tabel account terisi otomatis
+    const authApi = auth as any;
+    const newUser = await authApi.api.admin.createUser({
+      headers: await headers(),
+      body: {
         email: userData.email,
-        password: hashedPassword,
-        role: userData.role,
+        password: userData.password,
+        name: userData.name,
+        role: userData.role as any, // Cast as any because of custom role mapping in admin plugin
         department: userData.department,
-      })
-      .returning({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        department: user.department,
-        createdAt: user.createdAt,
-      });
+      },
+    });
 
-    return newUser[0];
+    return newUser as any;
   } catch (error) {
     console.error('Error in createUser:', error);
     throw new Error("Terjadi kesalahan saat membuat pengguna baru");

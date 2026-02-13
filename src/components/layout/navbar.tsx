@@ -42,9 +42,19 @@ export function Navbar() {
         {session ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center space-x-2">
-                <User className="h-5 w-5" />
-                <span>{session.user.name}</span>
+              <Button variant="ghost" className="flex items-center space-x-2 p-1 pr-3 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
+                {session.user.image ? (
+                  <img
+                    src={session.user.image}
+                    alt={session.user.name}
+                    className="h-8 w-8 rounded-full object-cover border border-white dark:border-slate-700 shadow-sm"
+                  />
+                ) : (
+                  <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+                    <User className="h-4 w-4" />
+                  </div>
+                )}
+                <span className="font-semibold text-slate-700 dark:text-slate-200 text-sm">{session.user.name}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -68,9 +78,6 @@ export function Navbar() {
           <div className="space-x-2">
             <Button asChild variant="outline">
               <Link href="/login">Login</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/sign-up">Sign Up</Link>
             </Button>
           </div>
         )}

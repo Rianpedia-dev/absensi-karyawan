@@ -84,12 +84,6 @@ export default function LoginPage() {
 
         <CardFooter className="flex flex-col">
           <Button type="submit" className="w-full">Masuk</Button>
-          <p className="mt-4 text-sm text-gray-600">
-            Belum punya akun?{' '}
-            <Link href="/sign-up" className="text-blue-600 hover:underline">
-              Daftar di sini
-            </Link>
-          </p>
         </CardFooter>
       </form>
     </Card>

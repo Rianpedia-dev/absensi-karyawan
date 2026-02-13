@@ -3,9 +3,9 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { db } from '@/db';
 import * as schema from '@/db/schema';
 import { types } from 'pg';
+import { admin } from 'better-auth/plugins';
 
 // Force node-postgres to return timestamps as Date objects
-// Redundant check in auth.ts to ensure Next.js HMR/Turbopack doesn't lose the global parsers
 const parseDate = (val: string | null) => {
   if (val === null) return null;
   return new Date(val.includes(' ') && !val.includes('T') ? val.replace(' ', 'T') + 'Z' : val);
@@ -18,7 +18,10 @@ export const auth = betterAuth({
     provider: 'pg',
     schema: schema,
   }),
-  baseURL: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+  plugins: [
+    admin() // Biarkan default dulu untuk melihat apakah ini menyelesaikan masalah tipe di user.ts
+  ],
+  baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'),
   user: {
     additionalFields: {
       role: {
