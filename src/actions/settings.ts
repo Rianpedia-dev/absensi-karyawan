@@ -11,6 +11,7 @@ const DEFAULT_CONFIG = {
     latitude: -6.200000,
     longitude: 106.816666,
     radius: 100, // meters
+    enabled: true,
 };
 
 const CONFIG_KEY = 'office_config';
@@ -25,14 +26,15 @@ export async function getOfficeConfig() {
             return DEFAULT_CONFIG;
         }
 
-        return JSON.parse(config.value);
+        const parsed = JSON.parse(config.value);
+        return { ...DEFAULT_CONFIG, ...parsed }; // Merge to ensure new fields exist
     } catch (error) {
         console.error('Error in getOfficeConfig:', error);
         return DEFAULT_CONFIG;
     }
 }
 
-export async function updateOfficeConfig(lat: number, lng: number, radius: number) {
+export async function updateOfficeConfig(lat: number, lng: number, radius: number, enabled: boolean) {
     try {
         const session = await auth.api.getSession({
             headers: await headers(),
@@ -42,7 +44,7 @@ export async function updateOfficeConfig(lat: number, lng: number, radius: numbe
             throw new Error("Unauthorized");
         }
 
-        const value = JSON.stringify({ latitude: lat, longitude: lng, radius });
+        const value = JSON.stringify({ latitude: lat, longitude: lng, radius, enabled });
 
         // Upsert logic (PostgreSQL style for Drizzle)
         await db.insert(settings)

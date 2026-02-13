@@ -25,20 +25,23 @@ export async function clockIn(lat: number, lng: number) {
     }
 
     // Validasi Lokasi (Geofencing)
+    // Validasi Lokasi (Geofencing)
     const config = await getOfficeConfig();
 
-    const distance = calculateDistance(
-      lat,
-      lng,
-      config.latitude,
-      config.longitude
-    );
+    if (config.enabled) {
+      const distance = calculateDistance(
+        lat,
+        lng,
+        config.latitude,
+        config.longitude
+      );
 
-    if (distance > config.radius) {
-      return {
-        success: false,
-        message: `Anda berada di luar jangkauan kantor! Jarak: ${distance.toFixed(0)}m (Max: ${config.radius}m). Lokasi terdeteksi: ${lat.toFixed(6)}, ${lng.toFixed(6)}`
-      };
+      if (distance > config.radius) {
+        return {
+          success: false,
+          message: `Anda berada di luar jangkauan kantor! Jarak: ${distance.toFixed(0)}m (Max: ${config.radius}m). Lokasi terdeteksi: ${lat.toFixed(6)}, ${lng.toFixed(6)}`
+        };
+      }
     }
 
     // Cek apakah sudah absen masuk hari ini
@@ -89,20 +92,23 @@ export async function clockOut(lat: number, lng: number) {
     }
 
     // Validasi Lokasi (Geofencing)
+    // Validasi Lokasi (Geofencing)
     const config = await getOfficeConfig();
 
-    const distance = calculateDistance(
-      lat,
-      lng,
-      config.latitude,
-      config.longitude
-    );
+    if (config.enabled) {
+      const distance = calculateDistance(
+        lat,
+        lng,
+        config.latitude,
+        config.longitude
+      );
 
-    if (distance > config.radius) {
-      return {
-        success: false,
-        message: `Anda berada di luar jangkauan kantor! Jarak: ${distance.toFixed(0)}m (Max: ${config.radius}m). Lokasi terdeteksi: ${lat.toFixed(6)}, ${lng.toFixed(6)}`
-      };
+      if (distance > config.radius) {
+        return {
+          success: false,
+          message: `Anda berada di luar jangkauan kantor! Jarak: ${distance.toFixed(0)}m (Max: ${config.radius}m). Lokasi terdeteksi: ${lat.toFixed(6)}, ${lng.toFixed(6)}`
+        };
+      }
     }
 
     // Cek apakah sudah absen masuk hari ini tetapi belum absen pulang
