@@ -34,8 +34,9 @@ export function Navbar() {
 
   return (
     <nav className="h-16 flex items-center justify-between px-4 border-b">
-      <Link href={session?.user.role === 'admin' ? '/admin' : '/dashboard'} className="text-xl font-bold">
-        E-Absensi
+      <Link href={session?.user.role === 'admin' ? '/admin' : '/dashboard'} className="flex items-center space-x-2">
+        <img src="/icon.png" alt="Logo" className="h-8 w-8 object-contain" />
+        <span className="text-xl font-bold">E-Absensi</span>
       </Link>
 
       <div className="flex items-center space-x-4">
