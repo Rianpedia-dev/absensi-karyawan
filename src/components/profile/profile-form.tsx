@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { toast } from 'sonner';
 import { Loader2, User, Building2, Mail, ShieldCheck, Camera, X } from 'lucide-react';
 import { ExtendedUser } from '@/lib/auth-client';
+import { PasswordInput } from '@/components/ui/password-input';
 
 interface ProfileFormProps {
     user: ExtendedUser;
@@ -246,8 +247,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="space-y-2.5">
                                 <Label className="text-xs font-bold uppercase tracking-widest text-slate-500">Kata Sandi Saat Ini</Label>
-                                <Input
-                                    type="password"
+                                <PasswordInput
                                     value={currentPassword}
                                     onChange={(e) => setCurrentPassword(e.target.value)}
                                     placeholder="••••••••"
@@ -257,8 +257,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
                             </div>
                             <div className="space-y-2.5">
                                 <Label className="text-xs font-bold uppercase tracking-widest text-slate-500">Kata Sandi Baru</Label>
-                                <Input
-                                    type="password"
+                                <PasswordInput
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
                                     placeholder="Minimal 8 karakter"
@@ -268,8 +267,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
                             </div>
                             <div className="space-y-2.5">
                                 <Label className="text-xs font-bold uppercase tracking-widest text-slate-500">Konfirmasi Kata Sandi</Label>
-                                <Input
-                                    type="password"
+                                <PasswordInput
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     placeholder="Ulangi kata sandi baru"

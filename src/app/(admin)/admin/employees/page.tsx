@@ -24,6 +24,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { getUsers, createUser, updateUser, deleteUser } from '@/actions/user';
+import { PasswordInput } from '@/components/ui/password-input';
 
 export default function EmployeeManagementPage() {
   const { data: session, isPending } = useSession();
@@ -182,9 +183,8 @@ export default function EmployeeManagementPage() {
                 {!editingEmployee && (
                   <div className="space-y-2">
                     <Label htmlFor="password">Kata Sandi</Label>
-                    <Input
+                    <PasswordInput
                       id="password"
-                      type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required={!editingEmployee}
