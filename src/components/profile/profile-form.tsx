@@ -47,7 +47,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         if (!imageFile) return null;
 
         if (!supabase) {
-            throw new Error('Konfigurasi Supabase tidak ditemukan. Mohon isi NEXT_PUBLIC_SUPABASE_URL dan NEXT_PUBLIC_SUPABASE_ANON_KEY di .env.local');
+            throw new Error('Konfigurasi Supabase (URL/Anon Key) tidak ditemukan. Jika sudah deploy, pastikan Anda sudah menambahkan Environment Variables di Vercel dan melakukan REDEPLOY (Build Ulang) agar variabel terbaca.');
         }
 
         const fileExt = imageFile.name.split('.').pop();
