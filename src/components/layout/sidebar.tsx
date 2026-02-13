@@ -32,7 +32,6 @@ export function Sidebar({ className }: SidebarProps) {
       { name: 'Manajemen Karyawan', href: '/admin/employees', icon: Users },
       { name: 'Laporan Kehadiran', href: '/admin/reports', icon: FileText },
       { name: 'Pengajuan Cuti', href: '/admin/leaves', icon: Calendar },
-      { name: 'Pengaturan Sistem', href: '/admin/settings', icon: Settings },
     ]
     : [
       { name: 'Status Absensi', href: '/dashboard', icon: Clock },

@@ -22,7 +22,6 @@ export function MobileNav() {
         { href: '/admin/employees', icon: Users, label: 'Karyawan' },
         { href: '/admin/leaves', icon: CalendarCheck, label: 'Cuti' },
         { href: '/admin/reports', icon: BarChart3, label: 'Laporan' },
-        { href: '/admin/settings', icon: Settings, label: 'Setting' },
     ];
 
     const links = isAdminSection ? adminLinks : employeeLinks;
