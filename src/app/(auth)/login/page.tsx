@@ -119,8 +119,12 @@ export default function LoginPage() {
               Masuk
             </Button>
 
-            <p className="mt-8 text-center text-xs text-slate-500 font-medium">
-              &copy; {new Date().getFullYear()} E-Absensi System 
+            <p className="mt-4 text-center text-sm text-slate-400">
+              Hubungi pihak IT jika ada kendala atau masalah
+            </p>
+
+            <p className="mt-6 text-center text-xs text-slate-500 font-medium">
+              &copy; {new Date().getFullYear()} E-Absensi System
             </p>
           </CardFooter>
         </form>
