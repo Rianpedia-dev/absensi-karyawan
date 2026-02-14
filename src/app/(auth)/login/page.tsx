@@ -82,12 +82,12 @@ export default function LoginPage() {
             )}
 
             <div className="space-y-3">
-              <Label htmlFor="email" className="text-slate-300 text-xs font-bold uppercase tracking-wider pl-1">Email Perusahaan</Label>
+              <Label htmlFor="email" className="text-slate-300 text-xs font-bold uppercase tracking-wider pl-1">Email Anda</Label>
               <div className="relative group">
                 <Input
                   id="email"
                   type="email"
-                  placeholder="anda@perusahaan.com"
+                  placeholder="Masukan Email Anda"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-600 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl h-14 pl-4 transition-all"
@@ -102,6 +102,7 @@ export default function LoginPage() {
                 <PasswordInput
                   id="password"
                   value={password}
+                  placeholder="Masukan Kata Sandi Anda"
                   onChange={(e) => setPassword(e.target.value)}
                   className="bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-600 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl h-14 pl-4 transition-all"
                   required
@@ -119,7 +120,7 @@ export default function LoginPage() {
             </Button>
 
             <p className="mt-8 text-center text-xs text-slate-500 font-medium">
-              &copy; {new Date().getFullYear()} E-Absensi System. v1.0
+              &copy; {new Date().getFullYear()} E-Absensi System 
             </p>
           </CardFooter>
         </form>

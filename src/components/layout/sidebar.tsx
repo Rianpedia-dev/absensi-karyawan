@@ -43,17 +43,7 @@ export function Sidebar({ className }: SidebarProps) {
   return (
     <aside className={cn("w-72 h-full min-h-screen bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col transition-all duration-300", className)}>
       <div className="p-6">
-        <div className="flex items-center space-x-3 mb-8">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">
-            {isAdmin ? 'A' : 'E'}
-          </div>
-          <div>
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-white leading-tight">
-              {isAdmin ? 'Admin Panel' : 'Employee Portal'}
-            </h2>
-            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">Management System</p>
-          </div>
-        </div>
+
 
         <nav className="space-y-1.5">
           {menuItems.map((item) => {
@@ -85,25 +75,7 @@ export function Sidebar({ className }: SidebarProps) {
         </nav>
       </div>
 
-      <div className="mt-auto p-6">
-        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 flex items-center space-x-3">
-          {session.user.image ? (
-            <img
-              src={session.user.image}
-              alt={session.user.name}
-              className="w-10 h-10 rounded-xl object-cover border border-white dark:border-slate-700 shadow-sm"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs border border-blue-200 dark:border-blue-800">
-              {session.user.name?.[0].toUpperCase()}
-            </div>
-          )}
-          <div className="overflow-hidden">
-            <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">{session.user.name}</p>
-            <p className="text-[10px] text-slate-500 capitalize">{session.user.role} Account</p>
-          </div>
-        </div>
-      </div>
+
     </aside>
   );
 }

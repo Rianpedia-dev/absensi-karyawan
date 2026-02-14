@@ -23,6 +23,7 @@ export const auth = betterAuth({
       adminRole: 'admin',
       // @ts-ignore
       roles: ['admin', 'employee'],
+      allowSetPassword: true,
     })
   ],
   baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'),

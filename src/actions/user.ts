@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/db';
-import { user, attendances, leaves } from '@/db/schema';
+import { user, attendances, leaves, account } from '@/db/schema';
 import { eq, and, gte, lte } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
@@ -236,5 +236,40 @@ export async function getUserAttendance(userId: string) {
   } catch (error) {
     console.error('Error in getUserAttendance:', error);
     throw new Error("Terjadi kesalahan saat mengambil data absensi pengguna");
+  }
+}
+
+export async function resetUserPassword(userId: string) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session || session.user.role !== 'admin') {
+      throw new Error("Unauthorized: Hanya admin yang dapat mereset password.");
+    }
+
+    // Default password as requested
+    const newPassword = 'User!2332!';
+
+    // Use Better Auth's own hashPassword to ensure compatibility
+    const { hashPassword } = await import('better-auth/crypto');
+    const hashedPassword = await hashPassword(newPassword);
+
+    // Update the account table directly
+    const updateResult = await db.update(account)
+      .set({ password: hashedPassword })
+      .where(eq(account.userId, userId))
+      .returning();
+
+    if (updateResult.length === 0) {
+      throw new Error("Gagal mereset password: Akun pengguna tidak ditemukan.");
+    }
+
+    return { success: true, message: `Password berhasil direset menjadi: ${newPassword}` };
+
+  } catch (error: any) {
+    console.error('Error in resetUserPassword:', error);
+    throw new Error(error.message || "Terjadi kesalahan saat mereset password");
   }
 }

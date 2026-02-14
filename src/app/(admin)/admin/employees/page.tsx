@@ -23,8 +23,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { getUsers, createUser, updateUser, deleteUser } from '@/actions/user';
+import { getUsers, createUser, updateUser, deleteUser, resetUserPassword } from '@/actions/user';
 import { PasswordInput } from '@/components/ui/password-input';
+import { RotateCcw } from 'lucide-react';
 
 export default function EmployeeManagementPage() {
   const { data: session, isPending } = useSession();
@@ -112,6 +113,22 @@ export default function EmployeeManagementPage() {
       } catch (error) {
         console.error('Error deleting employee:', error);
         alert('Gagal menghapus karyawan');
+      }
+    }
+  };
+
+  const handleResetPassword = async (id: string, name: string) => {
+    if (window.confirm(`Apakah Anda yakin ingin mereset password untuk ${name} menjadi 'User!2332!'?`)) {
+      try {
+        const result = await resetUserPassword(id);
+        if (result.success) {
+          alert(result.message);
+        } else {
+          alert('Gagal mereset password');
+        }
+      } catch (error: any) {
+        console.error('Error resetting password:', error);
+        alert(error.message || 'Gagal mereset password');
       }
     }
   };
@@ -208,19 +225,13 @@ export default function EmployeeManagementPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="department">Departemen</Label>
-                  <Select value={department} onValueChange={setDepartment}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="IT">IT</SelectItem>
-                      <SelectItem value="HR">HR</SelectItem>
-                      <SelectItem value="Finance">Finance</SelectItem>
-                      <SelectItem value="Marketing">Marketing</SelectItem>
-                      <SelectItem value="Sales">Sales</SelectItem>
-                      <SelectItem value="Operations">Operations</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    id="department"
+                    value={department}
+                    onChange={(e) => setDepartment(e.target.value)}
+                    placeholder="Masukkan nama departemen"
+                    required
+                  />
                 </div>
 
                 <div className="flex justify-end space-x-2 pt-4">
@@ -269,6 +280,15 @@ export default function EmployeeManagementPage() {
                           onClick={() => handleEdit(employee)}
                         >
                           Edit
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                          onClick={() => handleResetPassword(employee.id, employee.name)}
+                          title="Reset Password"
+                        >
+                          <RotateCcw className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="destructive"

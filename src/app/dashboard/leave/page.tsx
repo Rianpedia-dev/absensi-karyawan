@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+
 import { requestLeave, getMyLeaves } from '@/actions/leave';
 import {
   Table,
@@ -29,6 +29,7 @@ export default function LeavePage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [myLeaves, setMyLeaves] = useState<any[]>([]);
+  const [isFormVisible, setIsFormVisible] = useState(false);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,88 +104,89 @@ export default function LeavePage() {
         <p className="text-gray-600">Ajukan cuti atau izin Anda di sini</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Ajukan Cuti Baru</CardTitle>
-          <CardDescription>Isi formulir di bawah untuk mengajukan cuti</CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                <span className="block sm:inline">{error}</span>
+      {!isFormVisible ? (
+        <Button onClick={() => setIsFormVisible(true)}>Ajukan Cuti</Button>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Ajukan Cuti Baru</CardTitle>
+            <CardDescription>Isi formulir di bawah untuk mengajukan cuti</CardDescription>
+          </CardHeader>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4">
+              {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                  <span className="block sm:inline">{error}</span>
+                </div>
+              )}
+
+              {success && (
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                  <span className="block sm:inline">{success}</span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="type">Jenis Cuti</Label>
+                  <Select value={leaveType} onValueChange={(value: any) => setLeaveType(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sick">Sakit</SelectItem>
+                      <SelectItem value="vacation">Cuti Tahunan</SelectItem>
+                      <SelectItem value="other">Lainnya</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="reason">Alasan</Label>
+                  <Input
+                    id="reason"
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    placeholder="Jelaskan alasan Anda mengajukan cuti"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="startDate">Tanggal Mulai</Label>
+                  <Input
+                    id="startDate"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="endDate">Tanggal Selesai</Label>
+                  <Input
+                    id="endDate"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    required
+                  />
+                </div>
               </div>
-            )}
 
-            {success && (
-              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                <span className="block sm:inline">{success}</span>
+
+
+              <div className="flex justify-end gap-2 mt-4">
+                <Button variant="outline" type="button" onClick={() => setIsFormVisible(false)}>
+                  Batal
+                </Button>
+                <Button type="submit">Ajukan Cuti</Button>
               </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="type">Jenis Cuti</Label>
-                <Select value={leaveType} onValueChange={(value: any) => setLeaveType(value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="sick">Sakit</SelectItem>
-                    <SelectItem value="vacation">Cuti Tahunan</SelectItem>
-                    <SelectItem value="other">Lainnya</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="reason">Alasan</Label>
-                <Input
-                  id="reason"
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  placeholder="Jelaskan alasan Anda mengajukan cuti"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="startDate">Tanggal Mulai</Label>
-                <Input
-                  id="startDate"
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="endDate">Tanggal Selesai</Label>
-                <Input
-                  id="endDate"
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="details">Detail Tambahan (Opsional)</Label>
-              <Textarea
-                id="details"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="Detail tambahan tentang pengajuan cuti Anda..."
-              />
-            </div>
-
-            <Button type="submit" className="w-full mt-4">Ajukan Cuti</Button>
-          </CardContent>
-        </form>
-      </Card>
+            </CardContent>
+          </form>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
