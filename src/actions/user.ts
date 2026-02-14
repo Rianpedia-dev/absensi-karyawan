@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/db';
-import { user, attendances, leaves, account } from '@/db/schema';
+import { user, attendances, leaves, account, session as sessionTable } from '@/db/schema';
 import { eq, and, gte, lte } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
@@ -201,6 +201,13 @@ export async function deleteUser(userId: string) {
       throw new Error("Unauthorized or insufficient permissions");
     }
 
+    // Hapus data terkait terlebih dahulu (foreign key constraints)
+    await db.delete(sessionTable).where(eq(sessionTable.userId, userId));
+    await db.delete(account).where(eq(account.userId, userId));
+    await db.delete(attendances).where(eq(attendances.userId, userId));
+    await db.delete(leaves).where(eq(leaves.userId, userId));
+
+    // Hapus user
     const result = await db.delete(user)
       .where(eq(user.id, userId))
       .returning();

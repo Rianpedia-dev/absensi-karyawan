@@ -30,6 +30,7 @@ export default function DashboardPage() {
     latitude: 0,
     longitude: 0,
     radius: 100,
+    enabled: true,
   });
 
   // Update waktu setiap detik untuk jam real-time
@@ -71,19 +72,23 @@ export default function DashboardPage() {
 
     try {
       const userLocation = await getCurrentLocation();
-      const distance = calculateDistance(
-        userLocation.latitude,
-        userLocation.longitude,
-        config.latitude,
-        config.longitude
-      );
 
-      if (distance > config.radius) {
-        const errMsg = `Anda berada di luar jangkauan kantor! Jarak: ${distance.toFixed(0)}m (Max: ${config.radius}m). Lokasi Anda: ${userLocation.latitude.toFixed(6)}, ${userLocation.longitude.toFixed(6)}`;
-        setLocationError(errMsg);
-        toast.error('Gagal Clock In', { description: 'Lokasi Anda di luar jangkauan kantor.' });
-        setLoading(false);
-        return;
+      // Only check geofencing if enabled in admin settings
+      if (config.enabled) {
+        const distance = calculateDistance(
+          userLocation.latitude,
+          userLocation.longitude,
+          config.latitude,
+          config.longitude
+        );
+
+        if (distance > config.radius) {
+          const errMsg = `Anda berada di luar jangkauan kantor! Jarak: ${distance.toFixed(0)}m (Max: ${config.radius}m). Lokasi Anda: ${userLocation.latitude.toFixed(6)}, ${userLocation.longitude.toFixed(6)}`;
+          setLocationError(errMsg);
+          toast.error('Gagal Clock In', { description: 'Lokasi Anda di luar jangkauan kantor.' });
+          setLoading(false);
+          return;
+        }
       }
 
       const result = await clockIn(userLocation.latitude, userLocation.longitude);
@@ -110,19 +115,23 @@ export default function DashboardPage() {
 
     try {
       const userLocation = await getCurrentLocation();
-      const distance = calculateDistance(
-        userLocation.latitude,
-        userLocation.longitude,
-        config.latitude,
-        config.longitude
-      );
 
-      if (distance > config.radius) {
-        const errMsg = `Anda berada di luar jangkauan kantor! Jarak: ${distance.toFixed(0)}m (Max: ${config.radius}m). Lokasi Anda: ${userLocation.latitude.toFixed(6)}, ${userLocation.longitude.toFixed(6)}`;
-        setLocationError(errMsg);
-        toast.error('Gagal Clock Out', { description: 'Lokasi Anda di luar jangkauan kantor.' });
-        setLoading(false);
-        return;
+      // Only check geofencing if enabled in admin settings
+      if (config.enabled) {
+        const distance = calculateDistance(
+          userLocation.latitude,
+          userLocation.longitude,
+          config.latitude,
+          config.longitude
+        );
+
+        if (distance > config.radius) {
+          const errMsg = `Anda berada di luar jangkauan kantor! Jarak: ${distance.toFixed(0)}m (Max: ${config.radius}m). Lokasi Anda: ${userLocation.latitude.toFixed(6)}, ${userLocation.longitude.toFixed(6)}`;
+          setLocationError(errMsg);
+          toast.error('Gagal Clock Out', { description: 'Lokasi Anda di luar jangkauan kantor.' });
+          setLoading(false);
+          return;
+        }
       }
 
       const result = await clockOut(userLocation.latitude, userLocation.longitude);
