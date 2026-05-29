@@ -1,0 +1,24 @@
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    # Berjalan setiap 2 hari sekali pada jam 00:00 UTC (Bisa disesuaikan)
+    - cron: '0 0 */2 * *'
+  workflow_dispatch: # Mengizinkan Anda menjalankan action ini secara manual dari tab Actions
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+          
+          echo "Supabase merespons dengan status: $HTTP_STATUS"
+          
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "Gagal melakukan ping ke Supabase. Pastikan URL dan KEY sudah benar."
+            exit 1
+          fi
