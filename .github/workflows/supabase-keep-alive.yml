@@ -2,8 +2,8 @@ name: Supabase Keep Alive
 
 on:
   schedule:
-    # Berjalan setiap 2 hari sekali pada jam 00:00 UTC (Bisa disesuaikan)
-    - cron: '0 0 */2 * *'
+    # Berjalan setiap hari pada jam 00:00 UTC (Bisa disesuaikan)
+    - cron: '0 0 * * *'
   workflow_dispatch: # Mengizinkan Anda menjalankan action ini secara manual dari tab Actions
 
 jobs:
