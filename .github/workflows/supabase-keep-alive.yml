@@ -10,18 +10,45 @@ jobs:
   ping-supabase:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase REST API
+      - name: Ping Supabase Health API
         run: |
-          # Menyimpan response body ke file untuk debugging
-          HTTP_STATUS=$(curl -s -w "%{http_code}" -o response.json -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/" \
-            -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}")
+          # Validasi apakah secrets telah dikonfigurasi di GitHub
+          if [ -z "${{ secrets.SUPABASE_URL }}" ]; then
+            echo "::error::Secret 'SUPABASE_URL' belum dikonfigurasi di GitHub Repository Settings!"
+            echo "Silakan buka repository Anda di GitHub -> Settings -> Secrets and variables -> Actions -> New repository secret"
+            echo "Tambahkan SUPABASE_URL dengan nilai URL project Supabase Anda (misal: https://xyz.supabase.co)"
+            exit 1
+          fi
+
+          # Menentukan API Key yang akan digunakan (mengutamakan ANON_KEY, fallback ke SERVICE_ROLE_KEY)
+          API_KEY=""
+          if [ -n "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            API_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+          elif [ -n "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" ]; then
+            API_KEY="${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
+          else
+            echo "::error::Secret 'SUPABASE_ANON_KEY' atau 'SUPABASE_SERVICE_ROLE_KEY' belum dikonfigurasi di GitHub Repository Settings!"
+            echo "Silakan buka repository Anda di GitHub -> Settings -> Secrets and variables -> Actions -> New repository secret"
+            echo "Tambahkan SUPABASE_ANON_KEY dengan nilai anon/public key dari dashboard Supabase Anda."
+            exit 1
+          fi
+
+          echo "Melakukan ping ke Supabase Auth Health API..."
           
-          echo "Supabase merespons dengan status: $HTTP_STATUS"
+          # Melakukan request ke endpoint health check
+          HTTP_STATUS=$(curl -s -w "%{http_code}" -o response.json -X GET "${{ secrets.SUPABASE_URL }}/auth/v1/health" \
+            -H "apikey: $API_KEY" \
+            -H "Authorization: Bearer $API_KEY")
+          
+          echo "Supabase merespons dengan status HTTP: $HTTP_STATUS"
           
           if [ "$HTTP_STATUS" -ne 200 ]; then
-            echo "Gagal melakukan ping ke Supabase. Berikut adalah pesan error dari Supabase:"
+            echo "::error::Gagal melakukan ping ke Supabase. Status: $HTTP_STATUS"
+            echo "Berikut adalah respon dari Supabase:"
             cat response.json
             echo ""
             exit 1
           fi
+          
+          echo "Ping berhasil! Database Supabase Anda aktif."
+
