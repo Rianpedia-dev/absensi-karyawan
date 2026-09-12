@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "E-Absensi",
-  description: "Sistem Manajemen Absensi Karyawan",
+  description: "Sistem Manajemen Absensi Pegawai",
 };
 
 export default function RootLayout({

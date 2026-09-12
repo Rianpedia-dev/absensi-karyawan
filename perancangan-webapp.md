@@ -1,4 +1,4 @@
-# Dokumen Perancangan Web App: Sistem E-Absensi Karyawan
+# Dokumen Perancangan Web App: Sistem E-Absensi Pegawai
 
 Dokumen ini berisi penjelasan lengkap dan detail mengenai perancangan sistem aplikasi web **E-Absensi**. Aplikasi ini dirancang untuk memudahkan manajemen kehadiran karyawan menggunakan teknologi modern dengan fitur validasi lokasi (geofencing) dan waktu secara real-time.
 

@@ -143,7 +143,7 @@ export default function AdminSettingsPage() {
                         </div>
                     </div>
                     <CardDescription>
-                        Tentukan koordinat titik pusat kantor dan jarak toleransi (radius) untuk absensi karyawan.
+                        Tentukan koordinat titik pusat kantor dan jarak toleransi (radius) untuk absensi pegawai.
                     </CardDescription>
                 </CardHeader>
 

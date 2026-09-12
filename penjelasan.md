@@ -1,4 +1,4 @@
-# Dokumentasi Sistem Absensi Karyawan (E-Absensi)
+# Dokumentasi Sistem Absensi Pegawai (E-Absensi)
 
 Dokumen ini menjelaskan secara rinci cara kerja, arsitektur, dan alur data dari aplikasi E-Absensi yang telah dibangun.
 
