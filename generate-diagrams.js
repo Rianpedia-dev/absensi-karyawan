@@ -31,7 +31,7 @@ function createUseCaseSvg() {
   <rect x="220" y="30" width="560" height="660" rx="12" fill="#F8FAFC" stroke="#003366" stroke-width="2.5"/>
   <rect x="220" y="30" width="560" height="40" rx="12" fill="#003366"/>
   <rect x="220" y="55" width="560" height="15" fill="#003366"/>
-  <text x="500" y="55" class="title" fill="#FFFFFF" text-anchor="middle">Sistem E-Absensi Pegawai Berbasis Geofencing</text>
+  <text x="500" y="55" class="title" fill="#FFFFFF" text-anchor="middle">Sistem Absensi Pegawai Berbasis Geofencing</text>
 
   <!-- Actor Karyawan (Left) -->
   <g transform="translate(100, 300)">
@@ -302,7 +302,7 @@ function createActivityCutiSvg() {
   <rect x="40" y="60" width="280" height="680" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/>
 
   <rect x="320" y="20" width="340" height="40" fill="#0284C7"/>
-  <text x="490" y="45" class="header-title">Sistem E-Absensi (Backend &amp; DB)</text>
+  <text x="490" y="45" class="header-title">Sistem Absensi Pegawai (Backend &amp; DB)</text>
   <rect x="320" y="60" width="340" height="680" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
 
   <rect x="660" y="20" width="260" height="40" fill="#334155"/>
@@ -766,7 +766,7 @@ function createPrototypeMobilePresensiSvg() {
   <rect x="45" y="60" width="360" height="55" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
   <circle cx="75" cy="88" r="18" fill="#003366"/>
   <text x="75" y="93" font-family="Arial" font-size="14px" font-weight="bold" fill="#FFFFFF" text-anchor="middle">A</text>
-  <text x="105" y="82" class="app-title">E-Absensi Pegawai</text>
+  <text x="105" y="82" class="app-title">Absensi Pegawai</text>
   <text x="105" y="98" class="text-reg">Halo, Ahmad Fauzi (IT Staff)</text>
 
   <rect x="45" y="130" width="360" height="85" rx="12" fill="#003366"/>
@@ -925,7 +925,7 @@ function createPrototypeDesktopAdminSvg() {
 
   <!-- SIDEBAR -->
   <rect x="15" y="50" width="200" height="555" fill="#003366"/>
-  <text x="35" y="85" class="sb-title">E-Absensi Admin</text>
+  <text x="35" y="85" class="sb-title">Absensi Pegawai Admin</text>
   <text x="35" y="100" font-family="Arial" font-size="10px" fill="#93C5FD">Portal Manajemen HRD</text>
   <line x1="30" y1="115" x2="195" y2="115" stroke="#1E40AF" stroke-width="1"/>
 
@@ -1035,7 +1035,7 @@ function createPrototypeDesktopGeofencingSvg() {
 
   <!-- SIDEBAR -->
   <rect x="15" y="50" width="200" height="555" fill="#003366"/>
-  <text x="35" y="85" class="sb-title">E-Absensi Admin</text>
+  <text x="35" y="85" class="sb-title">Absensi Pegawai Admin</text>
   <line x1="30" y1="105" x2="195" y2="105" stroke="#1E40AF" stroke-width="1"/>
   <text x="45" y="140" class="sb-item">📊 Dashboard Utama</text>
   <text x="45" y="180" class="sb-item">👥 Data Karyawan</text>

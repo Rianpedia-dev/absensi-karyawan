@@ -506,7 +506,7 @@ function buildBab3() {
 
     // Pengantar Bab III
     bab3.push(createParagraph(
-        "Bab ini menjelaskan mengenai perancangan dan desain sistem aplikasi E-Absensi Pegawai secara menyeluruh. Proses perancangan sistem ini mencakup metodologi pengembangan perangkat lunak menggunakan model Prototyping, analisis kebutuhan sistem (fungsional dan non-fungsional), pemodelan sistem menggunakan Unified Modeling Language (UML), perancangan arsitektur perangkat lunak, perancangan algoritma geofencing menggunakan rumus matematis Haversine, perancangan basis data relasional (ERD dan kamus data), serta perancangan prototype antarmuka pengguna (User Interface). Rangkaian tahapan perancangan ini dijadikan sebagai landasan ilmiah dan teknis yang kokoh sebelum melangkah ke tahap implementasi sistem pada Bab IV."
+        "Bab ini menjelaskan mengenai perancangan dan desain sistem aplikasi Absensi Pegawai secara menyeluruh. Proses perancangan sistem ini mencakup metodologi pengembangan perangkat lunak menggunakan model Prototyping, analisis kebutuhan sistem (fungsional dan non-fungsional), pemodelan sistem menggunakan Unified Modeling Language (UML), perancangan arsitektur perangkat lunak, perancangan algoritma geofencing menggunakan rumus matematis Haversine, perancangan basis data relasional (ERD dan kamus data), serta perancangan prototype antarmuka pengguna (User Interface). Rangkaian tahapan perancangan ini dijadikan sebagai landasan ilmiah dan teknis yang kokoh sebelum melangkah ke tahap implementasi sistem pada Bab IV."
     ));
 
     // --- 3.1 METODOLOGI PENGEMBANGAN SISTEM (MODEL PROTOTYPING) ---
@@ -539,7 +539,7 @@ function buildBab3() {
             ["3", "Construction of Prototype (Pembangunan Prototipe)", "Membangun prototipe UI mobile-first untuk karyawan dan dashboard admin.", "Prototipe antarmuka interaktif yang dapat diuji coba pengguna."],
             ["4", "User Evaluation (Evaluasi Pengguna)", "Pengujian prototipe oleh HRD dan perwakilan staf untuk menjaring masukan.", "Catatan perbaikan fitur: tombol presensi dinamis & visualisasi radius peta."],
             ["5", "Refining Prototype (Pemurnian Prototipe)", "Mengakomodasi perbaikan antarmuka dan menyesuaikan toleransi radius geofencing.", "Desain antarmuka final yang disetujui dan siap dikodekan."],
-            ["6", "Final Product (Sistem Akhir)", "Pengodean penuh sistem, Server Actions, Drizzle ORM, dan pengujian Black-box.", "Aplikasi E-Absensi berbasis web terintegrasi dan siap dioperasikan."]
+            ["6", "Final Product (Sistem Akhir)", "Pengodean penuh sistem, Server Actions, Drizzle ORM, dan pengujian Black-box.", "Aplikasi Absensi Pegawai berbasis web terintegrasi dan siap dioperasikan."]
         ]
     ));
     bab3.push(createParagraph("", { after: 180 }));
@@ -553,7 +553,7 @@ function buildBab3() {
     // 3.2.1 Kebutuhan Fungsional
     bab3.push(createHeading("3.2.1 Kebutuhan Fungsional (Functional Requirements)", 3));
     bab3.push(createParagraph(
-        "Kebutuhan fungsional mendefinisikan layanan atau fungsi spesifik yang disediakan oleh sistem E-Absensi kepada pengguna berdasarkan hak akses perannya (Role-Based Access):"
+        "Kebutuhan fungsional mendefinisikan layanan atau fungsi spesifik yang disediakan oleh sistem Absensi Pegawai kepada pengguna berdasarkan hak akses perannya (Role-Based Access):"
     ));
 
     // Tabel 3.2
@@ -609,11 +609,11 @@ function buildBab3() {
     // 3.3.1 Use Case Diagram
     bab3.push(createHeading("3.3.1 Use Case Diagram & Skenario Use Case", 3));
     bab3.push(createParagraph(
-        "Sistem E-Absensi melibatkan dua aktor utama, yaitu Karyawan (Employee) dan Administrator (HRD). Karyawan berinteraksi dengan sistem untuk mencatat presensi masuk/pulang, melihat riwayat kehadiran, mengajukan cuti, dan mengelola profil. Sedangkan Administrator memiliki wewenang penuh dalam mengelola data karyawan, memantau kehadiran harian, menyetujui/menolak cuti, serta mengatur koordinat dan radius geofencing kantor."
+        "Sistem Absensi Pegawai melibatkan dua aktor utama, yaitu Karyawan (Employee) dan Administrator (HRD). Karyawan berinteraksi dengan sistem untuk mencatat presensi masuk/pulang, melihat riwayat kehadiran, mengajukan cuti, dan mengelola profil. Sedangkan Administrator memiliki wewenang penuh dalam mengelola data karyawan, memantau kehadiran harian, menyetujui/menolak cuti, serta mengatur koordinat dan radius geofencing kantor."
     ));
 
     // Tabel 3.4
-    bab3.push(createTableCaption("Tabel 3.4", "Matriks Use Case Sistem E-Absensi"));
+    bab3.push(createTableCaption("Tabel 3.4", "Matriks Use Case Sistem Absensi Pegawai"));
     bab3.push(createStyledTable(
         ["Kode Use Case", "Nama Use Case", "Aktor Utama", "Deskripsi Singkat"],
         [
@@ -688,8 +688,8 @@ function buildBab3() {
     // GAMBAR 3.1: USE CASE DIAGRAM
     bab3.push(...createDiagramSection(
         "gambar-3-1-use-case-diagram.png",
-        "Use Case Diagram Sistem E-Absensi Pegawai Berbasis Geofencing",
-        "Gambar 3.1 di atas menyajikan Use Case Diagram sistem E-Absensi Pegawai. Diagram ini memodelkan interaksi antara dua aktor utama (Karyawan dan Administrator) dengan use case di dalam batas sistem (system boundary). Hubungan include menghubungkan use case Presensi Masuk (Clock-In) dan Presensi Pulang (Clock-Out) dengan use case Validasi Jarak Geofencing, yang menegaskan bahwa setiap aksi presensi mutlak memerlukan validasi lokasi berbasis rumus Haversine.",
+        "Use Case Diagram Sistem Absensi Pegawai Berbasis Geofencing",
+        "Gambar 3.1 di atas menyajikan Use Case Diagram sistem Absensi Pegawai. Diagram ini memodelkan interaksi antara dua aktor utama (Karyawan dan Administrator) dengan use case di dalam batas sistem (system boundary). Hubungan include menghubungkan use case Presensi Masuk (Clock-In) dan Presensi Pulang (Clock-Out) dengan use case Validasi Jarak Geofencing, yang menegaskan bahwa setiap aksi presensi mutlak memerlukan validasi lokasi berbasis rumus Haversine.",
         "3.1",
         500,
         360
@@ -698,7 +698,7 @@ function buildBab3() {
     // 3.3.2 Activity Diagram
     bab3.push(createHeading("3.3.2 Activity Diagram", 3));
     bab3.push(createParagraph(
-        "Activity Diagram memodelkan aliran aktivitas dinamis dari alur kerja sistem, bagaimana sistem merespon input pengguna, serta bagaimana eksekusi logika berpindah antar-entitas (swimlane). Pada sistem E-Absensi dirancang diagram alur aktivitas untuk presensi geofencing dan eskalasi izin cuti:"
+        "Activity Diagram memodelkan aliran aktivitas dinamis dari alur kerja sistem, bagaimana sistem merespon input pengguna, serta bagaimana eksekusi logika berpindah antar-entitas (swimlane). Pada sistem Absensi Pegawai dirancang diagram alur aktivitas untuk presensi geofencing dan eskalasi izin cuti:"
     ));
 
     // GAMBAR 3.2: ACTIVITY DIAGRAM PRESENSI
@@ -756,7 +756,7 @@ function buildBab3() {
     // --- 3.4 PERANCANGAN ARSITEKTUR SISTEM ---
     bab3.push(createHeading("3.4 Perancangan Arsitektur Sistem", 2));
     bab3.push(createParagraph(
-        "Sistem E-Absensi Pegawai dirancang menggunakan arsitektur full-stack modern berbasis Next.js App Router dalam satu kesatuan basis kode terpadu (monorepo). Pola arsitektur ini mengeliminasi kebutuhan pembuatan web service REST API terpisah, karena komunikasi antara antarmuka pengguna dan logika backend dijembatani langsung oleh Next.js Server Actions yang dieksekusi secara aman di lingkungan server."
+        "Sistem Absensi Pegawai dirancang menggunakan arsitektur full-stack modern berbasis Next.js App Router dalam satu kesatuan basis kode terpadu (monorepo). Pola arsitektur ini mengeliminasi kebutuhan pembuatan web service REST API terpisah, karena komunikasi antara antarmuka pengguna dan logika backend dijembatani langsung oleh Next.js Server Actions yang dieksekusi secara aman di lingkungan server."
     ));
 
     bab3.push(createParagraph(
@@ -837,7 +837,7 @@ function buildBab3() {
     // 3.6.1 ERD
     bab3.push(createHeading("3.6.1 Entity Relationship Diagram (ERD)", 3));
     bab3.push(createParagraph(
-        "Struktur Entity Relationship Diagram (ERD) sistem E-Absensi memetakan relasi antar entitas sebagai berikut:"
+        "Struktur Entity Relationship Diagram (ERD) sistem Absensi Pegawai memetakan relasi antar entitas sebagai berikut:"
     ));
     bab3.push(createBulletItem("Entitas 'user' memiliki relasi One-to-Many (1:N) terhadap entitas 'attendance', di mana satu pengguna karyawan dapat memiliki banyak catatan riwayat presensi harian."));
     bab3.push(createBulletItem("Entitas 'user' memiliki relasi One-to-Many (1:N) terhadap entitas 'leaves', di mana satu karyawan dapat mengajukan banyak permohonan cuti."));
@@ -848,8 +848,8 @@ function buildBab3() {
     // GAMBAR 3.6: ERD DATABASE
     bab3.push(...createDiagramSection(
         "gambar-3-6-erd-database.png",
-        "Entity Relationship Diagram (ERD) Basis Data Sistem E-Absensi",
-        "Gambar 3.6 memvisualisasikan struktur konseptual dan logikal Entity Relationship Diagram (ERD) basis data sistem E-Absensi. Diagram ini memperlihatkan keterhubungan relasi One-to-Many (1:N) antara entitas user terhadap attendance, leaves, session, dan account, serta entitas independen settings untuk konfigurasi koordinat dan radius kantor.",
+        "Entity Relationship Diagram (ERD) Basis Data Sistem Absensi Pegawai",
+        "Gambar 3.6 memvisualisasikan struktur konseptual dan logikal Entity Relationship Diagram (ERD) basis data sistem Absensi Pegawai. Diagram ini memperlihatkan keterhubungan relasi One-to-Many (1:N) antara entitas user terhadap attendance, leaves, session, dan account, serta entitas independen settings untuk konfigurasi koordinat dan radius kantor.",
         "3.6",
         500,
         350
@@ -948,7 +948,7 @@ function buildBab3() {
     // --- 3.7 PERANCANGAN ANTARMUKA SISTEM (PROTOTYPE DESIGN) ---
     bab3.push(createHeading("3.7 Perancangan Antarmuka Sistem (Prototype Design)", 2));
     bab3.push(createParagraph(
-        "Perancangan antarmuka (User Interface Design) sistem E-Absensi dibangun melalui pendekatan Prototyping yang menitikberatkan pada dua prinsip utama: Mobile-First Responsive Design untuk modul karyawan dan Enterprise Administrative Dashboard untuk modul administrator. Rancangan antarmuka ini dirancang untuk memberikan pengalaman pengguna (User Experience) yang bersih, intuitif, dan responsif."
+        "Perancangan antarmuka (User Interface Design) sistem Absensi Pegawai dibangun melalui pendekatan Prototyping yang menitikberatkan pada dua prinsip utama: Mobile-First Responsive Design untuk modul karyawan dan Enterprise Administrative Dashboard untuk modul administrator. Rancangan antarmuka ini dirancang untuk memberikan pengalaman pengguna (User Experience) yang bersih, intuitif, dan responsif."
     ));
 
     // 3.7.1 Simulasi Desain Prototype Antarmuka Mobile Karyawan
@@ -1048,13 +1048,13 @@ function buildBab4() {
 
     // Pengantar Bab IV
     bab4.push(createParagraph(
-        "Bab ini menyajikan hasil implementasi sistem, pengujian fungsionalitas aplikasi, serta pembahasan mendalam terhadap hasil penelitian sistem E-Absensi Pegawai yang telah dirancang pada Bab III. Tahap implementasi mendeskripsikan spesifikasi lingkungan pengembangan, implementasi skema basis data menggunakan Drizzle ORM, realisasi kode logika bisnis Server Actions untuk validasi geofencing dengan rumus Haversine, serta perwujudan 10 halaman antarmuka pengguna hasil realisasi prototype yang telah di-deploy secara daring (online). Selanjutnya, disajikan hasil pengujian fungsional menggunakan metode Black-box testing, dilanjutkan dengan pembahasan komprehensif mengenai efektivitas algoritma geofencing, evaluasi penerapan metodologi prototyping, serta efisiensi arsitektur full-stack Next.js yang dibangun."
+        "Bab ini menyajikan hasil implementasi sistem, pengujian fungsionalitas aplikasi, serta pembahasan mendalam terhadap hasil penelitian sistem Absensi Pegawai yang telah dirancang pada Bab III. Tahap implementasi mendeskripsikan spesifikasi lingkungan pengembangan, implementasi skema basis data menggunakan Drizzle ORM, realisasi kode logika bisnis Server Actions untuk validasi geofencing dengan rumus Haversine, serta perwujudan 10 halaman antarmuka pengguna hasil realisasi prototype yang telah di-deploy secara daring (online). Selanjutnya, disajikan hasil pengujian fungsional menggunakan metode Black-box testing, dilanjutkan dengan pembahasan komprehensif mengenai efektivitas algoritma geofencing, evaluasi penerapan metodologi prototyping, serta efisiensi arsitektur full-stack Next.js yang dibangun."
     ));
 
     // --- 4.1 LINGKUNGAN IMPLEMENTASI SISTEM ---
     bab4.push(createHeading("4.1 Lingkungan Implementasi Sistem", 2));
     bab4.push(createParagraph(
-        "Pembangunan, implementasi, dan pengujian sistem E-Absensi Pegawai dijalankan pada lingkungan perangkat keras (hardware) dan perangkat lunak (software) dengan spesifikasi teknis yang disajikan pada Tabel 4.1 berikut:"
+        "Pembangunan, implementasi, dan pengujian sistem Absensi Pegawai dijalankan pada lingkungan perangkat keras (hardware) dan perangkat lunak (software) dengan spesifikasi teknis yang disajikan pada Tabel 4.1 berikut:"
     ));
 
     // Tabel 4.1
@@ -1271,7 +1271,7 @@ export const settings = pgTable('settings', {
     // --- 4.4 IMPLEMENTASI HALAMAN ANTARMUKA SISTEM (REALISASI PROTOTYPE) ---
     bab4.push(createHeading("4.4 Implementasi Halaman Antarmuka Sistem (Hasil Realisasi Prototype)", 2));
     bab4.push(createParagraph(
-        "Berikut merupakan hasil realisasi antarmuka pengguna (User Interface) aplikasi E-Absensi yang dikembangkan berdasarkan rancangan prototype pada Bab III. Sistem telah di-deploy secara online pada platform cloud Vercel (https://absensi-karyawan-three.vercel.app) dan terhubung langsung ke basis data cloud PostgreSQL Supabase. Antarmuka terbagi menjadi halaman otentikasi umum, antarmuka karyawan berbasis tampilan seluler (mobile view), dan antarmuka administrator berbasis layar lebar (desktop view):"
+        "Berikut merupakan hasil realisasi antarmuka pengguna (User Interface) aplikasi Absensi Pegawai yang dikembangkan berdasarkan rancangan prototype pada Bab III. Sistem telah di-deploy secara online pada platform cloud Vercel (https://absensi-karyawan-three.vercel.app) dan terhubung langsung ke basis data cloud PostgreSQL Supabase. Antarmuka terbagi menjadi halaman otentikasi umum, antarmuka karyawan berbasis tampilan seluler (mobile view), dan antarmuka administrator berbasis layar lebar (desktop view):"
     ));
 
     let imgIdx = 1;
@@ -1381,7 +1381,7 @@ export const settings = pgTable('settings', {
     // 4.5.2 Hasil Pengujian Fungsional
     bab4.push(createHeading("4.5.2 Rencana dan Hasil Pengujian Fungsionalitas", 3));
     bab4.push(createParagraph(
-        "Berdasarkan kasus uji yang telah disusun, berikut disajikan matriks lengkap hasil pengujian fungsionalitas sistem E-Absensi yang telah dilaksanakan:"
+        "Berdasarkan kasus uji yang telah disusun, berikut disajikan matriks lengkap hasil pengujian fungsionalitas sistem Absensi Pegawai yang telah dilaksanakan:"
     ));
 
     // Tabel 4.2 Matriks Pengujian
@@ -1408,13 +1408,13 @@ export const settings = pgTable('settings', {
     bab4.push(createParagraph("", { after: 120 }));
 
     bab4.push(createParagraph(
-        "Berdasarkan 14 (empat belas) skenario pengujian Black-box yang dilaksanakan, seluruh butir pengujian memperoleh hasil aktual yang 100% selaras dengan hasil yang diharapkan. Hal ini membuktikan bahwa seluruh modul fungsional sistem E-Absensi berjalan secara andal, bebas dari galat fatal, dan siap untuk dioperasikan."
+        "Berdasarkan 14 (empat belas) skenario pengujian Black-box yang dilaksanakan, seluruh butir pengujian memperoleh hasil aktual yang 100% selaras dengan hasil yang diharapkan. Hal ini membuktikan bahwa seluruh modul fungsional sistem Absensi Pegawai berjalan secara andal, bebas dari galat fatal, dan siap untuk dioperasikan."
     ));
 
     // --- 4.6 PEMBAHASAN HASIL PENELITIAN (DISCUSSION) ---
     bab4.push(createHeading("4.6 Pembahasan Hasil Penelitian (Discussion)", 2));
     bab4.push(createParagraph(
-        "Pada bagian ini disajikan analisis mendalam dan pembahasan akademis mengenai temuan-temuan penting dari hasil implementasi dan pengujian sistem E-Absensi Pegawai:"
+        "Pada bagian ini disajikan analisis mendalam dan pembahasan akademis mengenai temuan-temuan penting dari hasil implementasi dan pengujian sistem Absensi Pegawai:"
     ));
 
     // 4.6.1 Efektivitas Geofencing Haversine
@@ -1440,10 +1440,10 @@ export const settings = pgTable('settings', {
     bab4.push(createParagraph(
         "Berdasarkan keseluruhan tahapan implementasi, pengujian sistem, dan pembahasan yang telah dipaparkan pada Bab IV ini, dapat disimpulkan bahwa:"
     ));
-    bab4.push(createBulletItem("1. Aplikasi E-Absensi Pegawai berbasis web telah berhasil dibangun dan diimplementasikan secara utuh sesuai rancangan desain sistem pada Bab III menggunakan stack teknologi Next.js 15, TypeScript, Drizzle ORM, Better Auth, dan PostgreSQL Supabase."));
+    bab4.push(createBulletItem("1. Aplikasi Absensi Pegawai berbasis web telah berhasil dibangun dan diimplementasikan secara utuh sesuai rancangan desain sistem pada Bab III menggunakan stack teknologi Next.js 15, TypeScript, Drizzle ORM, Better Auth, dan PostgreSQL Supabase."));
     bab4.push(createBulletItem("2. Algoritma geofencing berbasis rumus Haversine berhasil diintegrasikan pada Server Actions dan terbukti presisi dalam memvalidasi batas radius kehadiran karyawan secara real-time."));
     bab4.push(createBulletItem("3. Seluruh 10 rancangan antarmuka prototype telah berhasil direalisasikan ke dalam sistem online yang responsif, mencakup modul mobile karyawan dan modul desktop administrator."));
-    bab4.push(createBulletItem("4. Pengujian fungsionalitas sistem menggunakan metode Black-box testing pada 14 skenario kasus uji memperoleh tingkat keberhasilan 100% valid, membuktikan bahwa aplikasi E-Absensi siap untuk dioperasikan secara penuh dan layak dipertahankan dalam sidang skripsi."));
+    bab4.push(createBulletItem("4. Pengujian fungsionalitas sistem menggunakan metode Black-box testing pada 14 skenario kasus uji memperoleh tingkat keberhasilan 100% valid, membuktikan bahwa aplikasi Absensi Pegawai siap untuk dioperasikan secara penuh dan layak dipertahankan dalam sidang skripsi."));
 
     return bab4;
 }

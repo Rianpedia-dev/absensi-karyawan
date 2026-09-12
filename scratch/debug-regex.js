@@ -26,7 +26,7 @@ const sortedWords = [...ENGLISH_WORDS].sort((a, b) => b.length - a.length);
 const escWords = sortedWords.map(w => w.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'));
 const englishRegex = new RegExp(`\\b(${escWords.join('|')})\\b`, 'gi');
 
-const text = "Pada bab ini dibahas mengenai tahap perancangan sistem, implementasi sistem (pembangunan), serta pengujian fungsionalitas aplikasi E-Absensi Pegawai. Tahap perancangan menjelaskan pemodelan sistem, arsitektur teknologi, serta rancangan basis data. Tahap implementasi mendeskripsikan lingkungan pengembangan, implementasi basis data menggunakan Drizzle ORM, serta implementasi logika bisnis utama seperti validasi geofencing dengan rumus Haversine. Tahap pengujian menyajikan evaluasi fungsional aplikasi menggunakan metode Black-box testing untuk memastikan seluruh modul berjalan sesuai dengan kebutuhan.";
+const text = "Pada bab ini dibahas mengenai tahap perancangan sistem, implementasi sistem (pembangunan), serta pengujian fungsionalitas aplikasi Absensi Pegawai. Tahap perancangan menjelaskan pemodelan sistem, arsitektur teknologi, serta rancangan basis data. Tahap implementasi mendeskripsikan lingkungan pengembangan, implementasi basis data menggunakan Drizzle ORM, serta implementasi logika bisnis utama seperti validasi geofencing dengan rumus Haversine. Tahap pengujian menyajikan evaluasi fungsional aplikasi menggunakan metode Black-box testing untuk memastikan seluruh modul berjalan sesuai dengan kebutuhan.";
 
 console.log("Regex:", englishRegex);
 const parts = text.split(englishRegex);

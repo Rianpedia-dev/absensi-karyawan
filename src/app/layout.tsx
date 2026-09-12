@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "E-Absensi",
+  title: "Absensi Pegawai",
   description: "Sistem Manajemen Absensi Pegawai",
 };
 

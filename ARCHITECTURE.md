@@ -1,7 +1,7 @@
-# Dokumentasi Arsitektur Aplikasi E-Absensi
+# Dokumentasi Arsitektur Aplikasi Absensi Pegawai
 
 ## Gambaran Umum
-Aplikasi E-Absensi adalah sistem absensi pegawai berbasis web yang dibangun dengan pendekatan fullstack. Aplikasi ini memungkinkan karyawan untuk melakukan absensi harian dengan validasi lokasi, sementara administrator dapat mengelola data karyawan dan memonitor kehadiran.
+Aplikasi Absensi Pegawai adalah sistem absensi pegawai berbasis web yang dibangun dengan pendekatan fullstack. Aplikasi ini memungkinkan karyawan untuk melakukan absensi harian dengan validasi lokasi, sementara administrator dapat mengelola data karyawan dan memonitor kehadiran.
 
 ## Arsitektur Sistem
 

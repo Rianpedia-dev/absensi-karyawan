@@ -1,4 +1,4 @@
-# E-Absensi - Sistem Absensi Pegawai Fullstack
+# Absensi Pegawai - Sistem Absensi Pegawai Fullstack
 
 ## Deskripsi
 Aplikasi berbasis web untuk mencatat kehadiran karyawan secara real-time menggunakan validasi lokasi (Geolocation) dan waktu server. Aplikasi ini membedakan hak akses antara **Karyawan** (melakukan absensi) dan **Admin** (rekapitulasi & manajemen).

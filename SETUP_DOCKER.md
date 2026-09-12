@@ -1,4 +1,4 @@
-# Setup Aplikasi E-Absensi dengan Docker
+# Setup Aplikasi Absensi Pegawai dengan Docker
 
 ## Prasyarat
 - Docker Desktop terinstall dan berjalan
@@ -7,7 +7,7 @@
 ## Langkah-langkah Setup
 
 ### 1. Clone atau buat proyek
-Pastikan Anda berada di root direktori proyek E-Absensi
+Pastikan Anda berada di root direktori proyek Absensi Pegawai
 
 ### 2. Buat file konfigurasi lingkungan
 Buat file `.env.local` di root direktori dengan konten berikut:
@@ -44,7 +44,7 @@ Aplikasi akan tersedia di http://localhost:3000
 
 ## Struktur Proyek
 ```
-E-Absensi/
+Absensi-Pegawai/
 ├── app/                    # File-file aplikasi Next.js
 ├── components/            # Komponen UI
 ├── db/                    # Skema dan konfigurasi database

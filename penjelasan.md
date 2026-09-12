@@ -1,6 +1,6 @@
-# Dokumentasi Sistem Absensi Pegawai (E-Absensi)
-
-Dokumen ini menjelaskan secara rinci cara kerja, arsitektur, dan alur data dari aplikasi E-Absensi yang telah dibangun.
+# Dokumentasi Sistem Absensi Pegawai
+ 
+Dokumen ini menjelaskan secara rinci cara kerja, arsitektur, dan alur data dari aplikasi Absensi Pegawai yang telah dibangun.
 
 ## 1. Arsitektur Teknologi
 

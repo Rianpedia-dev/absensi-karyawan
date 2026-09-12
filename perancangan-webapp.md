@@ -1,12 +1,12 @@
-# Dokumen Perancangan Web App: Sistem E-Absensi Pegawai
+# Dokumen Perancangan Web App: Sistem Absensi Pegawai
 
-Dokumen ini berisi penjelasan lengkap dan detail mengenai perancangan sistem aplikasi web **E-Absensi**. Aplikasi ini dirancang untuk memudahkan manajemen kehadiran karyawan menggunakan teknologi modern dengan fitur validasi lokasi (geofencing) dan waktu secara real-time.
+Dokumen ini berisi penjelasan lengkap dan detail mengenai perancangan sistem aplikasi web **Absensi Pegawai**. Aplikasi ini dirancang untuk memudahkan manajemen kehadiran karyawan menggunakan teknologi modern dengan fitur validasi lokasi (geofencing) dan waktu secara real-time.
 
 ---
 
 ## 1. Pendahuluan
 
-**E-Absensi** adalah aplikasi manajemen sumber daya manusia berbasis web yang difokuskan pada pencatatan dan pemantauan kehadiran karyawan. Aplikasi ini dirancang untuk menggantikan sistem absensi manual atau mesin _fingerprint_ konvensional, memberikan fleksibilitas bagi karyawan (terutama yang bekerja di lapangan atau dengan sistem _hybrid_) serta kemudahan rekapitulasi bagi administrator (HRD/Manajemen).
+**Absensi Pegawai** adalah aplikasi manajemen sumber daya manusia berbasis web yang difokuskan pada pencatatan dan pemantauan kehadiran karyawan. Aplikasi ini dirancang untuk menggantikan sistem absensi manual atau mesin _fingerprint_ konvensional, memberikan fleksibilitas bagi karyawan (terutama yang bekerja di lapangan atau dengan sistem _hybrid_) serta kemudahan rekapitulasi bagi administrator (HRD/Manajemen).
 
 ### Tujuan Utama:
 1. Memastikan validitas lokasi absensi menggunakan koordinat GPS (Geofencing).
@@ -223,7 +223,7 @@ Menyimpan data konfigurasi global, dikaitkan tanpa batas dalam wujud skema prope
 
 ## 4. Alur & Logika Bisnis Utama
 
-Bagian ini adalah inti dari aplikasi E-Absensi.
+Bagian ini adalah inti dari aplikasi Absensi Pegawai.
 
 ### A. Mekanisme Geofencing (Validasi Jarak)
 Aplikasi memastikan karyawan benar-benar berada di sekitar area kantor sebelum memperbolehkan tombol "Clock In / Clock Out" memproses data ke database.
@@ -299,4 +299,4 @@ Dalam membuat aplikasi Enterprise kecil-menengah ini, keamanan diimplementasikan
 
 ## Ringkasan
 
-Dengan rancangan di atas, **E-Absensi** menawarkan solusi yang handal, cepat (menggunakan standard Server-Side Rendering mutakhir), interaktif, dan aman. Validasi kehadiran dan lokasi disandarkan ke sisi _server logic_, sehingga sangat meminimalisir peluang karyawan memanipulasi _client_ (seperti mengubah jam komputer lokal atau manipulasi data ringan).
+Dengan rancangan di atas, **Absensi Pegawai** menawarkan solusi yang handal, cepat (menggunakan standard Server-Side Rendering mutakhir), interaktif, dan aman. Validasi kehadiran dan lokasi disandarkan ke sisi _server logic_, sehingga sangat meminimalisir peluang karyawan memanipulasi _client_ (seperti mengubah jam komputer lokal atau manipulasi data ringan).

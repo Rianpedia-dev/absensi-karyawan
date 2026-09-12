@@ -1,4 +1,4 @@
-# Panduan Penggunaan Docker untuk E-Absensi
+# Panduan Penggunaan Docker untuk Absensi Pegawai
 
 ## Prasyarat
 - Docker Desktop terinstall dan berjalan

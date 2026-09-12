@@ -62,10 +62,10 @@ export default function LoginPage() {
 
         <CardHeader className="text-center space-y-3 pt-12 pb-8">
           <div className="mx-auto w-24 h-24 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-3xl flex items-center justify-center shadow-inner border border-white/5 mb-6 ring-1 ring-white/10">
-            <img src="/icon.png" alt="E-Absensi Logo" className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
+            <img src="/icon.png" alt="Absensi Pegawai Logo" className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
           </div>
           <CardTitle className="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-indigo-200">
-            E-Absensi
+            Absensi Pegawai
           </CardTitle>
           <CardDescription className="text-slate-400 font-medium text-lg">
             Portal Masuk Karyawan
@@ -124,7 +124,7 @@ export default function LoginPage() {
             </p>
 
             <p className="mt-6 text-center text-xs text-slate-500 font-medium">
-              &copy; {new Date().getFullYear()} E-Absensi System
+              &copy; {new Date().getFullYear()} Absensi Pegawai System
             </p>
           </CardFooter>
         </form>
