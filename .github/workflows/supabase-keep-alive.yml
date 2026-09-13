@@ -2,53 +2,74 @@ name: Supabase Keep Alive
 
 on:
   schedule:
-    # Berjalan setiap hari pada jam 00:00 UTC (Bisa disesuaikan)
-    - cron: '0 0 * * *'
-  workflow_dispatch: # Mengizinkan Anda menjalankan action ini secara manual dari tab Actions
+    # Berjalan setiap 2 hari sekali pada pukul 03:15 UTC (10:15 WIB)
+    # Supabase free tier pause otomatis setelah 7 hari tidak aktif
+    - cron: '15 3 */2 * *'
+  workflow_dispatch: # Memungkinkan trigger manual kapan saja dari tab Actions di GitHub
 
 jobs:
-  ping-supabase:
+  keep-alive:
+    name: Keep Supabase Project Active
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Ping Supabase Health API
+      - name: Ping Supabase Database & Services
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY || secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
         run: |
-          # Validasi apakah secrets telah dikonfigurasi di GitHub
-          if [ -z "${{ secrets.SUPABASE_URL }}" ]; then
-            echo "::error::Secret 'SUPABASE_URL' belum dikonfigurasi di GitHub Repository Settings!"
-            echo "Silakan buka repository Anda di GitHub -> Settings -> Secrets and variables -> Actions -> New repository secret"
-            echo "Tambahkan SUPABASE_URL dengan nilai URL project Supabase Anda (misal: https://xyz.supabase.co)"
+          echo "=================================================="
+          echo "Supabase Keep Alive Workflow"
+          echo "Timestamp: $(date -u)"
+          echo "=================================================="
+
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::error::Secret SUPABASE_URL atau SUPABASE_ANON_KEY belum dikonfigurasi di GitHub Secrets!"
+            echo "Silakan tambahkan di Settings -> Secrets and variables -> Actions repository Anda."
             exit 1
           fi
 
-          # Menentukan API Key yang akan digunakan (mengutamakan ANON_KEY, fallback ke SERVICE_ROLE_KEY)
-          API_KEY=""
-          if [ -n "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
-            API_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
-          elif [ -n "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" ]; then
-            API_KEY="${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
-          else
-            echo "::error::Secret 'SUPABASE_ANON_KEY' atau 'SUPABASE_SERVICE_ROLE_KEY' belum dikonfigurasi di GitHub Repository Settings!"
-            echo "Silakan buka repository Anda di GitHub -> Settings -> Secrets and variables -> Actions -> New repository secret"
-            echo "Tambahkan SUPABASE_ANON_KEY dengan nilai anon/public key dari dashboard Supabase Anda."
-            exit 1
+          # Bersihkan trailing slash pada URL jika ada
+          CLEAN_URL="${SUPABASE_URL%/}"
+
+          echo "Pinging Supabase Database (PostgREST table query)..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET "${CLEAN_URL}/rest/v1/user?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
+
+          echo "Response HTTP Status: $HTTP_STATUS"
+
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 400 ]; then
+            echo "✅ Sukses! Query database via PostgREST berhasil. Status: $HTTP_STATUS"
+            echo "Supabase database berhasil diping dan tetap aktif."
+            exit 0
           fi
 
-          echo "Melakukan ping ke Supabase Auth Health API..."
-          
-          # Melakukan request ke endpoint health check
-          HTTP_STATUS=$(curl -s -w "%{http_code}" -o response.json -X GET "${{ secrets.SUPABASE_URL }}/auth/v1/health" \
-            -H "apikey: $API_KEY" \
-            -H "Authorization: Bearer $API_KEY")
-          
-          echo "Supabase merespons dengan status HTTP: $HTTP_STATUS"
-          
-          if [ "$HTTP_STATUS" -ne 200 ]; then
-            echo "::error::Gagal melakukan ping ke Supabase. Status: $HTTP_STATUS"
-            echo "Berikut adalah respon dari Supabase:"
-            cat response.json
-            echo ""
-            exit 1
-          fi
-          
-          echo "Ping berhasil! Database Supabase Anda aktif."
+          echo "⚠️ Query ke tabel user mengembalikan status $HTTP_STATUS. Mencoba ping tabel attendance..."
+          FALLBACK_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET "${CLEAN_URL}/rest/v1/attendance?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
 
+          echo "Fallback Attendance Status: $FALLBACK_STATUS"
+
+          if [ "$FALLBACK_STATUS" -ge 200 ] && [ "$FALLBACK_STATUS" -lt 400 ]; then
+            echo "✅ Sukses! Query tabel attendance berhasil. Status: $FALLBACK_STATUS"
+            exit 0
+          fi
+
+          echo "⚠️ Mencoba endpoint Auth Health..."
+          AUTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET "${CLEAN_URL}/auth/v1/health" \
+            -H "apikey: ${SUPABASE_ANON_KEY}")
+
+          echo "Auth Health Status: $AUTH_STATUS"
+
+          if [ "$AUTH_STATUS" -ge 200 ] && [ "$AUTH_STATUS" -lt 400 ]; then
+            echo "✅ Sukses! Supabase Auth service aktif. Status: $AUTH_STATUS"
+            exit 0
+          fi
+
+          echo "::error::Gagal melakukan ping ke Supabase. Status Terakhir: $AUTH_STATUS"
+          exit 1
