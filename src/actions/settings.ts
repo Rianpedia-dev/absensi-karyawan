@@ -67,3 +67,83 @@ export async function updateOfficeConfig(lat: number, lng: number, radius: numbe
         throw new Error("Gagal memperbarui konfigurasi kantor");
     }
 }
+
+// Konfigurasi Akun Demo Login
+export interface DemoConfig {
+    enabled: boolean;
+    adminEmail: string;
+    adminPassword: string;
+    employeeEmail: string;
+    employeePassword: string;
+}
+
+const DEFAULT_DEMO_CONFIG: DemoConfig = {
+    enabled: true,
+    adminEmail: 'admin@eabsensi.com',
+    adminPassword: 'Admin123!',
+    employeeEmail: 'owi@gmail.com',
+    employeePassword: 'owi12345',
+};
+
+const DEMO_CONFIG_KEY = 'login_demo_config';
+
+export async function getDemoConfig(): Promise<DemoConfig> {
+    try {
+        const config = await db.query.settings.findFirst({
+            where: eq(settings.key, DEMO_CONFIG_KEY),
+        });
+
+        if (!config) {
+            return DEFAULT_DEMO_CONFIG;
+        }
+
+        const parsed = JSON.parse(config.value);
+        return { ...DEFAULT_DEMO_CONFIG, ...parsed };
+    } catch (error) {
+        console.error('Error in getDemoConfig:', error);
+        return DEFAULT_DEMO_CONFIG;
+    }
+}
+
+export async function updateDemoConfig(enabled: boolean) {
+    try {
+        const session = await auth.api.getSession({
+            headers: await headers(),
+        });
+
+        if (!session || session.user.role !== 'admin') {
+            throw new Error("Unauthorized: Hanya admin yang dapat mengubah pengaturan ini.");
+        }
+
+        const current = await getDemoConfig();
+        const updated: DemoConfig = {
+            ...current,
+            enabled,
+        };
+
+        const value = JSON.stringify(updated);
+
+        await db.insert(settings)
+            .values({
+                key: DEMO_CONFIG_KEY,
+                value: value,
+                updatedAt: new Date(),
+            })
+            .onConflictDoUpdate({
+                target: settings.key,
+                set: {
+                    value: value,
+                    updatedAt: new Date(),
+                },
+            });
+
+        return {
+            success: true,
+            message: `Fitur akun demo di halaman login berhasil ${enabled ? 'diaktifkan' : 'dinonaktifkan'}`,
+            data: updated,
+        };
+    } catch (error: any) {
+        console.error('Error in updateDemoConfig:', error);
+        throw new Error(error.message || "Gagal memperbarui pengaturan demo login");
+    }
+}

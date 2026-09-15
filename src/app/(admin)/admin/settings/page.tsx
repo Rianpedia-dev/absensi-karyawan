@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { getOfficeConfig, updateOfficeConfig } from '@/actions/settings';
+import { getOfficeConfig, updateOfficeConfig, getDemoConfig, updateDemoConfig, type DemoConfig } from '@/actions/settings';
 import { toast } from 'sonner';
-import { MapPin, Save, Loader2 } from 'lucide-react';
+import { MapPin, Save, Loader2, Sparkles, Shield, UserCheck, EyeOff, CheckCircle2 } from 'lucide-react';
 import { useSession } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
 
@@ -32,6 +32,15 @@ export default function AdminSettingsPage() {
         enabled: true,
     });
 
+    const [demoConfig, setDemoConfig] = useState<DemoConfig>({
+        enabled: true,
+        adminEmail: 'admin@eabsensi.com',
+        adminPassword: 'Admin123!',
+        employeeEmail: 'owi@gmail.com',
+        employeePassword: 'owi12345',
+    });
+    const [savingDemo, setSavingDemo] = useState(false);
+
     useEffect(() => {
         // Redirect non-admin is handled by layout, but good to have check here or just load data
         loadConfig();
@@ -40,17 +49,37 @@ export default function AdminSettingsPage() {
     const loadConfig = async () => {
         try {
             setLoading(true);
-            const data = await getOfficeConfig();
+            const [data, demoData] = await Promise.all([
+                getOfficeConfig(),
+                getDemoConfig(),
+            ]);
             setConfig({
                 latitude: data.latitude.toString(),
                 longitude: data.longitude.toString(),
                 radius: data.radius.toString(),
                 enabled: data.enabled ?? true, // Default true if undefined
             });
+            setDemoConfig(demoData);
         } catch (error) {
             toast.error('Gagal memuat konfigurasi');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleToggleDemo = async (checked: boolean) => {
+        setSavingDemo(true);
+        setDemoConfig(prev => ({ ...prev, enabled: checked }));
+        try {
+            const res = await updateDemoConfig(checked);
+            if (res.success) {
+                toast.success(res.message);
+            }
+        } catch (error: any) {
+            setDemoConfig(prev => ({ ...prev, enabled: !checked }));
+            toast.error(error.message || 'Gagal mengubah pengaturan demo login');
+        } finally {
+            setSavingDemo(false);
         }
     };
 
@@ -254,6 +283,112 @@ export default function AdminSettingsPage() {
                         </Button>
                     </CardFooter>
                 </form>
+            </Card>
+
+            {/* Pengaturan Akun Demo Login */}
+            <Card className="border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-2.5 text-lg">
+                            <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                                <Sparkles className="h-5 w-5" />
+                            </div>
+                            <span>Akun Demo di Halaman Login</span>
+                        </CardTitle>
+                        <div className="flex items-center gap-3">
+                            {savingDemo && <Loader2 className="w-4 h-4 animate-spin text-blue-600" />}
+                            <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-xs">
+                                <Switch
+                                    id="demo-accounts-switch"
+                                    checked={demoConfig.enabled}
+                                    disabled={savingDemo}
+                                    onCheckedChange={handleToggleDemo}
+                                />
+                                <Label htmlFor="demo-accounts-switch" className="text-sm font-semibold cursor-pointer select-none">
+                                    {demoConfig.enabled ? (
+                                        <span className="text-emerald-600 dark:text-emerald-400">Aktif</span>
+                                    ) : (
+                                        <span className="text-slate-400">Nonaktif</span>
+                                    )}
+                                </Label>
+                            </div>
+                        </div>
+                    </div>
+                    <CardDescription className="text-slate-500 dark:text-slate-400 mt-1.5">
+                        Saklar untuk mengaktifkan atau mematikan tombol cepat akun demo (Admin & Pegawai) di halaman login.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="p-6">
+                    {demoConfig.enabled ? (
+                        <div className="space-y-4">
+                            <div className="p-4 bg-emerald-50/80 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-800/40 rounded-xl text-sm flex items-start gap-3">
+                                <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="font-semibold text-emerald-900 dark:text-emerald-200">
+                                        Fitur Akun Demo Sedang Aktif di Halaman Login
+                                    </p>
+                                    <p className="text-emerald-700 dark:text-emerald-400 text-xs mt-0.5">
+                                        Pengguna dapat mengklik tombol demo di halaman login untuk mengisi email dan kata sandi secara otomatis.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="p-4 rounded-xl border border-blue-100 dark:border-blue-900/30 bg-blue-50/40 dark:bg-blue-950/10 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <div className="p-1.5 rounded-md bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400">
+                                                <Shield className="w-4 h-4" />
+                                            </div>
+                                            <span className="text-xs font-bold text-blue-900 dark:text-blue-300">Akun Admin</span>
+                                        </div>
+                                        <span className="text-[10px] font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">Role: Admin</span>
+                                    </div>
+                                    <div className="text-xs space-y-1 pt-1 font-mono">
+                                        <p className="text-slate-700 dark:text-slate-300">
+                                            <span className="text-slate-400 font-sans">Email: </span>{demoConfig.adminEmail}
+                                        </p>
+                                        <p className="text-slate-700 dark:text-slate-300">
+                                            <span className="text-slate-400 font-sans">Password: </span>{demoConfig.adminPassword}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="p-4 rounded-xl border border-emerald-100 dark:border-emerald-900/30 bg-emerald-50/40 dark:bg-emerald-950/10 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <div className="p-1.5 rounded-md bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400">
+                                                <UserCheck className="w-4 h-4" />
+                                            </div>
+                                            <span className="text-xs font-bold text-emerald-900 dark:text-emerald-300">Akun Pegawai</span>
+                                        </div>
+                                        <span className="text-[10px] font-medium bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full">Role: Employee</span>
+                                    </div>
+                                    <div className="text-xs space-y-1 pt-1 font-mono">
+                                        <p className="text-slate-700 dark:text-slate-300">
+                                            <span className="text-slate-400 font-sans">Email: </span>{demoConfig.employeeEmail}
+                                        </p>
+                                        <p className="text-slate-700 dark:text-slate-300">
+                                            <span className="text-slate-400 font-sans">Password: </span>{demoConfig.employeePassword}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl text-sm flex items-start gap-3 text-slate-600 dark:text-slate-400">
+                            <EyeOff className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+                            <div>
+                                <p className="font-semibold text-slate-800 dark:text-slate-200">
+                                    Fitur Akun Demo Dinonaktifkan
+                                </p>
+                                <p className="text-xs text-slate-500 mt-0.5">
+                                    Tombol akun demo tidak akan muncul di halaman login. Form login harus diisi manual.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                </CardContent>
             </Card>
         </div>
     );

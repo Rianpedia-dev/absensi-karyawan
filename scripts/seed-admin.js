@@ -2,8 +2,7 @@
 // Jalankan dengan: node scripts/seed-admin.js
 
 const { Pool } = require('pg');
-const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
+const { hashPassword, generateRandomString } = require('better-auth/crypto');
 require('dotenv').config({ path: '.env.local' });
 
 async function seedAdmin() {
@@ -25,25 +24,27 @@ async function seedAdmin() {
         if (existing.rows.length > 0) {
             console.log('⚠️  Admin sudah ada, menghapus data lama...');
             const userId = existing.rows[0].id;
-            await pool.query('DELETE FROM "account" WHERE user_id = $1', [userId]);
+            await pool.query('DELETE FROM "attendance" WHERE user_id = $1', [userId]);
+            await pool.query('DELETE FROM "leaves" WHERE user_id = $1', [userId]);
             await pool.query('DELETE FROM "session" WHERE user_id = $1', [userId]);
+            await pool.query('DELETE FROM "account" WHERE user_id = $1', [userId]);
             await pool.query('DELETE FROM "user" WHERE id = $1', [userId]);
             console.log('✅ Data admin lama dihapus');
         }
 
-        // Hash password menggunakan bcrypt
-        const hashedPassword = await bcrypt.hash(adminPassword, 10);
-        const userId = crypto.randomUUID();
+        // Hash password menggunakan Better Auth crypto (scrypt) agar kompatibel dengan sistem autentikasi
+        const hashedPassword = await hashPassword(adminPassword);
+        const userId = generateRandomString(32);
 
-        // Insert user
+        // Insert user (catatan: password disimpan di tabel "account", bukan di tabel "user")
         await pool.query(
-            `INSERT INTO "user" (id, name, email, password, role, department, created_at, updated_at) 
+            `INSERT INTO "user" (id, name, email, email_verified, role, department, created_at, updated_at) 
        VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())`,
-            [userId, adminName, adminEmail, hashedPassword, 'admin', adminDepartment]
+            [userId, adminName, adminEmail, true, 'admin', adminDepartment]
         );
 
         // Insert account (diperlukan oleh BetterAuth untuk credential login)
-        const accountId = crypto.randomUUID();
+        const accountId = generateRandomString(32);
         await pool.query(
             `INSERT INTO "account" (id, user_id, account_id, provider_id, password, created_at, updated_at) 
        VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
