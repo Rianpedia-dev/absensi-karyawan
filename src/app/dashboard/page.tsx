@@ -10,7 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import {
   Clock, MapPin, LogIn, LogOut, CalendarDays,
   Timer, CheckCircle2, XCircle, Loader2, Fingerprint,
-  TrendingUp, History
+  TrendingUp, History, WifiOff
 } from 'lucide-react';
 import { calculateDistance, getCurrentLocation } from '@/lib/geolocation';
 import { formatTime, formatDateOnly } from '@/lib/utils';
@@ -26,12 +26,28 @@ export default function DashboardPage() {
   const [pageLoading, setPageLoading] = useState(true);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isOffline, setIsOffline] = useState(false);
   const [config, setConfig] = useState({
     latitude: 0,
     longitude: 0,
     radius: 100,
     enabled: true,
   });
+
+  // Pantau status sinyal / koneksi online & offline
+  useEffect(() => {
+    if (typeof navigator !== 'undefined') {
+      setIsOffline(!navigator.onLine);
+    }
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Update waktu setiap detik untuk jam real-time
   useEffect(() => {
@@ -70,22 +86,45 @@ export default function DashboardPage() {
     setLoading(true);
     setLocationError(null);
 
+    // 1. Validasi Sinyal / Koneksi Offline
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      const offlineMsg = 'Absensi gagal: Sinyal atau koneksi internet Anda sedang terputus (offline). Mohon periksa kembali paket data atau Wi-Fi Anda.';
+      setLocationError(offlineMsg);
+      toast.error('Koneksi Offline!', {
+        description: 'Perangkat Anda tidak terhubung ke internet. Pastikan sinyal internet aktif untuk absen masuk.',
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const userLocation = await getCurrentLocation();
 
       // Only check geofencing if enabled in admin settings
       if (config.enabled) {
+        const officeLat = Number(config.latitude);
+        const officeLng = Number(config.longitude);
+        const officeRadius = Number(config.radius);
+
         const distance = calculateDistance(
           userLocation.latitude,
           userLocation.longitude,
-          config.latitude,
-          config.longitude
+          officeLat,
+          officeLng
         );
 
-        if (distance > config.radius) {
-          const errMsg = `Anda berada di luar jangkauan kantor! Jarak: ${distance.toFixed(0)}m (Max: ${config.radius}m). Lokasi Anda: ${userLocation.latitude.toFixed(6)}, ${userLocation.longitude.toFixed(6)}`;
+        if (isNaN(distance) || distance > officeRadius) {
+          const formattedDist = isNaN(distance)
+            ? 'tidak terdeteksi'
+            : distance >= 1000
+              ? `${(distance / 1000).toFixed(2)} km`
+              : `${Math.round(distance)} meter`;
+
+          const errMsg = `Anda berada di luar jangkauan kantor! Jarak Anda saat ini: ${formattedDist} (Radius maksimal: ${officeRadius} meter). Koordinat Anda: ${userLocation.latitude.toFixed(6)}, ${userLocation.longitude.toFixed(6)}`;
           setLocationError(errMsg);
-          toast.error('Gagal Clock In', { description: 'Lokasi Anda di luar jangkauan kantor.' });
+          toast.error('Di Luar Jangkauan Kantor!', {
+            description: `Jarak Anda ${formattedDist} dari kantor. Toleransi radius maksimal adalah ${officeRadius} meter.`
+          });
           setLoading(false);
           return;
         }
@@ -95,15 +134,16 @@ export default function DashboardPage() {
 
       if (result.success) {
         await loadData();
-        toast.success('Berhasil!', { description: result.message });
+        toast.success('Berhasil Clock In!', { description: result.message });
       } else {
         setLocationError(result.message);
-        toast.error('Gagal', { description: result.message });
+        toast.error('Gagal Clock In', { description: result.message });
       }
     } catch (error: any) {
       console.error('Error during clock in:', error);
-      setLocationError(error.message || 'Gagal melakukan absensi masuk');
-      toast.error('Error', { description: error.message || 'Gagal mendapatkan lokasi.' });
+      const errText = error.message || 'Gagal melakukan absensi masuk.';
+      setLocationError(errText);
+      toast.error('Gagal Mendapatkan Lokasi', { description: errText });
     } finally {
       setLoading(false);
     }
@@ -113,22 +153,45 @@ export default function DashboardPage() {
     setLoading(true);
     setLocationError(null);
 
+    // 1. Validasi Sinyal / Koneksi Offline
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      const offlineMsg = 'Absensi gagal: Sinyal atau koneksi internet Anda sedang terputus (offline). Mohon periksa kembali paket data atau Wi-Fi Anda.';
+      setLocationError(offlineMsg);
+      toast.error('Koneksi Offline!', {
+        description: 'Perangkat Anda tidak terhubung ke internet. Pastikan sinyal internet aktif untuk absen pulang.',
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const userLocation = await getCurrentLocation();
 
       // Only check geofencing if enabled in admin settings
       if (config.enabled) {
+        const officeLat = Number(config.latitude);
+        const officeLng = Number(config.longitude);
+        const officeRadius = Number(config.radius);
+
         const distance = calculateDistance(
           userLocation.latitude,
           userLocation.longitude,
-          config.latitude,
-          config.longitude
+          officeLat,
+          officeLng
         );
 
-        if (distance > config.radius) {
-          const errMsg = `Anda berada di luar jangkauan kantor! Jarak: ${distance.toFixed(0)}m (Max: ${config.radius}m). Lokasi Anda: ${userLocation.latitude.toFixed(6)}, ${userLocation.longitude.toFixed(6)}`;
+        if (isNaN(distance) || distance > officeRadius) {
+          const formattedDist = isNaN(distance)
+            ? 'tidak terdeteksi'
+            : distance >= 1000
+              ? `${(distance / 1000).toFixed(2)} km`
+              : `${Math.round(distance)} meter`;
+
+          const errMsg = `Anda berada di luar jangkauan kantor! Jarak Anda saat ini: ${formattedDist} (Radius maksimal: ${officeRadius} meter). Koordinat Anda: ${userLocation.latitude.toFixed(6)}, ${userLocation.longitude.toFixed(6)}`;
           setLocationError(errMsg);
-          toast.error('Gagal Clock Out', { description: 'Lokasi Anda di luar jangkauan kantor.' });
+          toast.error('Di Luar Jangkauan Kantor!', {
+            description: `Jarak Anda ${formattedDist} dari kantor. Toleransi radius maksimal adalah ${officeRadius} meter.`
+          });
           setLoading(false);
           return;
         }
@@ -138,15 +201,16 @@ export default function DashboardPage() {
 
       if (result.success) {
         await loadData();
-        toast.success('Berhasil!', { description: result.message });
+        toast.success('Berhasil Clock Out!', { description: result.message });
       } else {
         setLocationError(result.message);
-        toast.error('Gagal', { description: result.message });
+        toast.error('Gagal Clock Out', { description: result.message });
       }
     } catch (error: any) {
       console.error('Error during clock out:', error);
-      setLocationError(error.message || 'Gagal melakukan absensi pulang');
-      toast.error('Error', { description: error.message || 'Gagal mendapatkan lokasi.' });
+      const errText = error.message || 'Gagal melakukan absensi pulang.';
+      setLocationError(errText);
+      toast.error('Gagal Mendapatkan Lokasi', { description: errText });
     } finally {
       setLoading(false);
     }
@@ -259,6 +323,29 @@ export default function DashboardPage() {
       <Card className="border-0 shadow-lg overflow-hidden">
         <CardContent className="p-0">
           <div className="flex flex-col items-center py-8 px-4">
+            {/* Geofencing Status Badge */}
+            <div className="mb-4 flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 shadow-xs">
+              <MapPin className="h-3.5 w-3.5 text-indigo-500" />
+              <span>
+                {config.enabled ? (
+                  <>Radius Absensi Kantor: <strong className="text-slate-900 dark:text-white font-semibold">{config.radius} meter</strong></>
+                ) : (
+                  <strong className="text-emerald-600 dark:text-emerald-400">Absensi Bebas Lokasi (Geofencing Nonaktif)</strong>
+                )}
+              </span>
+            </div>
+
+            {/* Offline Alert Banner */}
+            {isOffline && (
+              <div className="w-full max-w-sm mb-4 p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 rounded-2xl flex items-center gap-3 text-rose-700 dark:text-rose-300 shadow-xs animate-pulse">
+                <WifiOff className="h-5 w-5 shrink-0 text-rose-600 dark:text-rose-400" />
+                <div className="text-xs text-left">
+                  <p className="font-bold">Sinyal / Internet Offline</p>
+                  <p className="text-[11px] text-rose-600 dark:text-rose-400">Perangkat tidak terhubung ke internet. Hubungkan ke data/Wi-Fi untuk absen.</p>
+                </div>
+              </div>
+            )}
+
             {/* Main Action Button */}
             {!hasCheckedIn ? (
               <button
@@ -318,9 +405,35 @@ export default function DashboardPage() {
 
           {/* Error message */}
           {locationError && (
-            <div className="mx-4 mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-start gap-2">
-              <XCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
-              <p className="text-destructive text-sm">{locationError}</p>
+            <div className="mx-4 mb-5 p-4 bg-rose-50/90 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-2xl flex items-start gap-3.5 shadow-sm animate-in fade-in slide-in-from-top-2">
+              <div className="p-2.5 rounded-xl bg-rose-100 dark:bg-rose-900/60 text-rose-600 dark:text-rose-400 shrink-0">
+                <MapPin className="h-5 w-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <h4 className="text-sm font-bold text-rose-900 dark:text-rose-200">
+                    Peringatan Validasi Lokasi
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => setLocationError(null)}
+                    className="text-xs text-rose-500 hover:text-rose-700 dark:hover:text-rose-300 font-medium underline cursor-pointer"
+                  >
+                    Tutup
+                  </button>
+                </div>
+                <p className="text-xs text-rose-700 dark:text-rose-300 mt-1.5 leading-relaxed font-medium">
+                  {locationError}
+                </p>
+                <div className="mt-3 pt-2.5 border-t border-rose-200/60 dark:border-rose-900/40 flex flex-wrap items-center justify-between gap-2 text-[11px] text-rose-600 dark:text-rose-400">
+                  <span className="font-semibold">
+                    Radius Maksimal: {config.radius} meter
+                  </span>
+                  <span>
+                    Pastikan Anda berada di area kantor untuk melakukan absen.
+                  </span>
+                </div>
+              </div>
             </div>
           )}
         </CardContent>

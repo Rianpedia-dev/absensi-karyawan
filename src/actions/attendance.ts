@@ -25,21 +25,47 @@ export async function clockIn(lat: number, lng: number) {
     }
 
     // Validasi Lokasi (Geofencing)
-    // Validasi Lokasi (Geofencing)
     const config = await getOfficeConfig();
 
     if (config.enabled) {
-      const distance = calculateDistance(
-        lat,
-        lng,
-        config.latitude,
-        config.longitude
-      );
+      const officeLat = Number(config.latitude);
+      const officeLng = Number(config.longitude);
+      const officeRadius = Number(config.radius);
 
-      if (distance > config.radius) {
+      if (isNaN(officeLat) || isNaN(officeLng) || isNaN(officeRadius)) {
         return {
           success: false,
-          message: `Anda berada di luar jangkauan kantor! Jarak: ${distance.toFixed(0)}m (Max: ${config.radius}m). Lokasi terdeteksi: ${lat.toFixed(6)}, ${lng.toFixed(6)}`
+          message: "Konfigurasi lokasi kantor belum diatur dengan benar oleh administrator."
+        };
+      }
+
+      const userLat = Number(lat);
+      const userLng = Number(lng);
+
+      if (isNaN(userLat) || isNaN(userLng) || (userLat === 0 && userLng === 0)) {
+        return {
+          success: false,
+          message: "Titik lokasi GPS Anda tidak valid atau tidak terdeteksi. Pastikan GPS aktif."
+        };
+      }
+
+      const distance = calculateDistance(
+        userLat,
+        userLng,
+        officeLat,
+        officeLng
+      );
+
+      if (isNaN(distance) || distance > officeRadius) {
+        const formattedDist = isNaN(distance)
+          ? "tidak terdeteksi"
+          : distance >= 1000
+            ? `${(distance / 1000).toFixed(2)} km`
+            : `${Math.round(distance)} meter`;
+
+        return {
+          success: false,
+          message: `Absen masuk ditolak! Anda berada di luar jangkauan kantor. Jarak Anda: ${formattedDist} (Toleransi radius maksimal: ${officeRadius} meter). Lokasi Anda: ${userLat.toFixed(6)}, ${userLng.toFixed(6)}`
         };
       }
     }
@@ -92,21 +118,47 @@ export async function clockOut(lat: number, lng: number) {
     }
 
     // Validasi Lokasi (Geofencing)
-    // Validasi Lokasi (Geofencing)
     const config = await getOfficeConfig();
 
     if (config.enabled) {
-      const distance = calculateDistance(
-        lat,
-        lng,
-        config.latitude,
-        config.longitude
-      );
+      const officeLat = Number(config.latitude);
+      const officeLng = Number(config.longitude);
+      const officeRadius = Number(config.radius);
 
-      if (distance > config.radius) {
+      if (isNaN(officeLat) || isNaN(officeLng) || isNaN(officeRadius)) {
         return {
           success: false,
-          message: `Anda berada di luar jangkauan kantor! Jarak: ${distance.toFixed(0)}m (Max: ${config.radius}m). Lokasi terdeteksi: ${lat.toFixed(6)}, ${lng.toFixed(6)}`
+          message: "Konfigurasi lokasi kantor belum diatur dengan benar oleh administrator."
+        };
+      }
+
+      const userLat = Number(lat);
+      const userLng = Number(lng);
+
+      if (isNaN(userLat) || isNaN(userLng) || (userLat === 0 && userLng === 0)) {
+        return {
+          success: false,
+          message: "Titik lokasi GPS Anda tidak valid atau tidak terdeteksi. Pastikan GPS aktif."
+        };
+      }
+
+      const distance = calculateDistance(
+        userLat,
+        userLng,
+        officeLat,
+        officeLng
+      );
+
+      if (isNaN(distance) || distance > officeRadius) {
+        const formattedDist = isNaN(distance)
+          ? "tidak terdeteksi"
+          : distance >= 1000
+            ? `${(distance / 1000).toFixed(2)} km`
+            : `${Math.round(distance)} meter`;
+
+        return {
+          success: false,
+          message: `Absen pulang ditolak! Anda berada di luar jangkauan kantor. Jarak Anda: ${formattedDist} (Toleransi radius maksimal: ${officeRadius} meter). Lokasi Anda: ${userLat.toFixed(6)}, ${userLng.toFixed(6)}`
         };
       }
     }

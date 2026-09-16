@@ -39,6 +39,14 @@ export default function LeavePage() {
     setError('');
     setSuccess('');
 
+    // Validasi Sinyal / Koneksi Offline
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      const msg = 'Tidak dapat mengajukan cuti: Perangkat Anda sedang offline (tidak ada sinyal/internet).';
+      setError(msg);
+      toast.error('Koneksi Offline', { description: msg });
+      return;
+    }
+
     // Validasi tanggal
     if (!startDate || !endDate) {
       const msg = 'Tanggal mulai dan akhir harus diisi';

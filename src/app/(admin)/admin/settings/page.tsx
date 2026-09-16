@@ -87,9 +87,9 @@ export default function AdminSettingsPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const lat = parseFloat(config.latitude);
-        const lng = parseFloat(config.longitude);
-        const rad = parseFloat(config.radius);
+        const lat = parseFloat(config.latitude.toString().replace(/,/g, '.'));
+        const lng = parseFloat(config.longitude.toString().replace(/,/g, '.'));
+        const rad = parseFloat(config.radius.toString().replace(/,/g, '.'));
 
         if (config.enabled) {
             if (isNaN(lat) || isNaN(lng) || isNaN(rad)) {
@@ -244,9 +244,9 @@ export default function AdminSettingsPage() {
                             <div className="space-y-2 mb-6">
                                 <Label>Peta Lokasi Kantor</Label>
                                 <MapPicker
-                                    latitude={parseFloat(config.latitude) || 0}
-                                    longitude={parseFloat(config.longitude) || 0}
-                                    radius={parseFloat(config.radius) || 100}
+                                    latitude={parseFloat(config.latitude.toString().replace(/,/g, '.')) || 0}
+                                    longitude={parseFloat(config.longitude.toString().replace(/,/g, '.')) || 0}
+                                    radius={parseFloat(config.radius.toString().replace(/,/g, '.')) || 100}
                                     enabled={config.enabled}
                                     onLocationSelect={(lat, lng) => setConfig({
                                         ...config,

@@ -27,7 +27,24 @@ export async function getOfficeConfig() {
         }
 
         const parsed = JSON.parse(config.value);
-        return { ...DEFAULT_CONFIG, ...parsed }; // Merge to ensure new fields exist
+        const lat = typeof parsed.latitude === 'string'
+            ? parseFloat(parsed.latitude.replace(/,/g, '.'))
+            : Number(parsed.latitude);
+        const lng = typeof parsed.longitude === 'string'
+            ? parseFloat(parsed.longitude.replace(/,/g, '.'))
+            : Number(parsed.longitude);
+        const rad = typeof parsed.radius === 'string'
+            ? parseFloat(parsed.radius.replace(/,/g, '.'))
+            : Number(parsed.radius);
+
+        return {
+            ...DEFAULT_CONFIG,
+            ...parsed,
+            latitude: isNaN(lat) ? DEFAULT_CONFIG.latitude : lat,
+            longitude: isNaN(lng) ? DEFAULT_CONFIG.longitude : lng,
+            radius: isNaN(rad) ? DEFAULT_CONFIG.radius : rad,
+            enabled: parsed.enabled ?? DEFAULT_CONFIG.enabled,
+        };
     } catch (error) {
         console.error('Error in getOfficeConfig:', error);
         return DEFAULT_CONFIG;
@@ -44,7 +61,20 @@ export async function updateOfficeConfig(lat: number, lng: number, radius: numbe
             throw new Error("Unauthorized");
         }
 
-        const value = JSON.stringify({ latitude: lat, longitude: lng, radius, enabled });
+        const cleanLat = typeof lat === 'string' ? parseFloat(String(lat).replace(/,/g, '.')) : Number(lat);
+        const cleanLng = typeof lng === 'string' ? parseFloat(String(lng).replace(/,/g, '.')) : Number(lng);
+        const cleanRad = typeof radius === 'string' ? parseFloat(String(radius).replace(/,/g, '.')) : Number(radius);
+
+        if (enabled && (isNaN(cleanLat) || isNaN(cleanLng) || isNaN(cleanRad))) {
+            throw new Error("Koordinat atau radius tidak valid.");
+        }
+
+        const value = JSON.stringify({
+            latitude: cleanLat,
+            longitude: cleanLng,
+            radius: cleanRad,
+            enabled: Boolean(enabled),
+        });
 
         // Upsert logic (PostgreSQL style for Drizzle)
         await db.insert(settings)
@@ -62,9 +92,9 @@ export async function updateOfficeConfig(lat: number, lng: number, radius: numbe
             });
 
         return { success: true, message: "Konfigurasi kantor berhasil diperbarui" };
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error in updateOfficeConfig:', error);
-        throw new Error("Gagal memperbarui konfigurasi kantor");
+        throw new Error(error.message || "Gagal memperbarui konfigurasi kantor");
     }
 }
 

@@ -57,6 +57,13 @@ export function LoginForm({ initialDemoConfig }: LoginFormProps) {
       return;
     }
 
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      const msg = 'Tidak dapat masuk: Sinyal internet Anda sedang offline. Harap periksa jaringan Wi-Fi atau data seluler Anda.';
+      setError(msg);
+      toast.error('Koneksi Offline', { description: msg });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {

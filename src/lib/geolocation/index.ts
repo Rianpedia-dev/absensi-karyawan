@@ -37,6 +37,11 @@ export function getCurrentLocation(): Promise<{ latitude: number; longitude: num
       return;
     }
 
+    if (!navigator.onLine) {
+      reject(new Error('Perangkat Anda sedang offline. Koneksi internet diperlukan untuk mendeteksi lokasi dan absensi.'));
+      return;
+    }
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         resolve({
