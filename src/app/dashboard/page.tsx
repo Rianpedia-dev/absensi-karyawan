@@ -98,10 +98,24 @@ export default function DashboardPage() {
     }
 
     try {
-      const userLocation = await getCurrentLocation();
+      let userLocation: { latitude: number; longitude: number } | null = null;
+      try {
+        userLocation = await getCurrentLocation();
+      } catch (locErr: any) {
+        // Jika Geofencing AKTIF, lokasi GPS wajib didapatkan
+        if (config.enabled) {
+          throw locErr;
+        }
+        // Jika Geofencing NONAKTIF, pegawai tetap dapat absen di mana saja walau tanpa GPS
+        console.warn('GPS tidak terdeteksi, namun geofencing dinonaktifkan:', locErr);
+      }
 
-      // Only check geofencing if enabled in admin settings
+      // Validasi Geofencing hanya jika diaktifkan oleh admin
       if (config.enabled) {
+        if (!userLocation) {
+          throw new Error('Gagal mendeteksi lokasi GPS Anda untuk validasi jarak kantor.');
+        }
+
         const officeLat = Number(config.latitude);
         const officeLng = Number(config.longitude);
         const officeRadius = Number(config.radius);
@@ -130,11 +144,13 @@ export default function DashboardPage() {
         }
       }
 
-      const result = await clockIn(userLocation.latitude, userLocation.longitude);
+      const result = await clockIn(userLocation?.latitude, userLocation?.longitude);
 
       if (result.success) {
         await loadData();
-        toast.success('Berhasil Clock In!', { description: result.message });
+        toast.success('Berhasil Clock In!', { 
+          description: config.enabled ? result.message : `${result.message} (Mode Bebas Lokasi)`
+        });
       } else {
         setLocationError(result.message);
         toast.error('Gagal Clock In', { description: result.message });
@@ -143,7 +159,7 @@ export default function DashboardPage() {
       console.error('Error during clock in:', error);
       const errText = error.message || 'Gagal melakukan absensi masuk.';
       setLocationError(errText);
-      toast.error('Gagal Mendapatkan Lokasi', { description: errText });
+      toast.error('Gagal Clock In', { description: errText });
     } finally {
       setLoading(false);
     }
@@ -165,10 +181,24 @@ export default function DashboardPage() {
     }
 
     try {
-      const userLocation = await getCurrentLocation();
+      let userLocation: { latitude: number; longitude: number } | null = null;
+      try {
+        userLocation = await getCurrentLocation();
+      } catch (locErr: any) {
+        // Jika Geofencing AKTIF, lokasi GPS wajib didapatkan
+        if (config.enabled) {
+          throw locErr;
+        }
+        // Jika Geofencing NONAKTIF, pegawai tetap dapat absen di mana saja walau tanpa GPS
+        console.warn('GPS tidak terdeteksi, namun geofencing dinonaktifkan:', locErr);
+      }
 
-      // Only check geofencing if enabled in admin settings
+      // Validasi Geofencing hanya jika diaktifkan oleh admin
       if (config.enabled) {
+        if (!userLocation) {
+          throw new Error('Gagal mendeteksi lokasi GPS Anda untuk validasi jarak kantor.');
+        }
+
         const officeLat = Number(config.latitude);
         const officeLng = Number(config.longitude);
         const officeRadius = Number(config.radius);
@@ -197,11 +227,13 @@ export default function DashboardPage() {
         }
       }
 
-      const result = await clockOut(userLocation.latitude, userLocation.longitude);
+      const result = await clockOut(userLocation?.latitude, userLocation?.longitude);
 
       if (result.success) {
         await loadData();
-        toast.success('Berhasil Clock Out!', { description: result.message });
+        toast.success('Berhasil Clock Out!', { 
+          description: config.enabled ? result.message : `${result.message} (Mode Bebas Lokasi)`
+        });
       } else {
         setLocationError(result.message);
         toast.error('Gagal Clock Out', { description: result.message });
@@ -210,7 +242,7 @@ export default function DashboardPage() {
       console.error('Error during clock out:', error);
       const errText = error.message || 'Gagal melakukan absensi pulang.';
       setLocationError(errText);
-      toast.error('Gagal Mendapatkan Lokasi', { description: errText });
+      toast.error('Gagal Clock Out', { description: errText });
     } finally {
       setLoading(false);
     }

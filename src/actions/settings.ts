@@ -69,10 +69,15 @@ export async function updateOfficeConfig(lat: number, lng: number, radius: numbe
             throw new Error("Koordinat atau radius tidak valid.");
         }
 
+        const currentConfig = await getOfficeConfig();
+        const finalLat = isNaN(cleanLat) ? currentConfig.latitude : cleanLat;
+        const finalLng = isNaN(cleanLng) ? currentConfig.longitude : cleanLng;
+        const finalRad = isNaN(cleanRad) ? currentConfig.radius : cleanRad;
+
         const value = JSON.stringify({
-            latitude: cleanLat,
-            longitude: cleanLng,
-            radius: cleanRad,
+            latitude: finalLat,
+            longitude: finalLng,
+            radius: finalRad,
             enabled: Boolean(enabled),
         });
 
@@ -95,6 +100,48 @@ export async function updateOfficeConfig(lat: number, lng: number, radius: numbe
     } catch (error: any) {
         console.error('Error in updateOfficeConfig:', error);
         throw new Error(error.message || "Gagal memperbarui konfigurasi kantor");
+    }
+}
+
+export async function toggleGeofencing(enabled: boolean) {
+    try {
+        const session = await auth.api.getSession({
+            headers: await headers(),
+        });
+
+        if (!session || session.user.role !== 'admin') {
+            throw new Error("Unauthorized");
+        }
+
+        const currentConfig = await getOfficeConfig();
+        const value = JSON.stringify({
+            ...currentConfig,
+            enabled: Boolean(enabled),
+        });
+
+        await db.insert(settings)
+            .values({
+                key: CONFIG_KEY,
+                value: value,
+                updatedAt: new Date(),
+            })
+            .onConflictDoUpdate({
+                target: settings.key,
+                set: {
+                    value: value,
+                    updatedAt: new Date(),
+                },
+            });
+
+        return { 
+            success: true, 
+            message: enabled 
+                ? "Fitur Geofencing diaktifkan. Pegawai hanya dapat absen dalam radius kantor." 
+                : "Fitur Geofencing dinonaktifkan. Pegawai dapat absen dari mana saja." 
+        };
+    } catch (error: any) {
+        console.error('Error in toggleGeofencing:', error);
+        throw new Error(error.message || "Gagal mengubah status geofencing");
     }
 }
 

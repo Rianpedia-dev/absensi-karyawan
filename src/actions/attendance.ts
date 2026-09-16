@@ -13,7 +13,7 @@ import { getOfficeConfig } from './settings';
 // Koordinat kantor dan jarak maksimum diambil dari konfigurasi database
 // Default values are handled in getOfficeConfig
 
-export async function clockIn(lat: number, lng: number) {
+export async function clockIn(lat?: number, lng?: number) {
   try {
     // Dapatkan session pengguna
     const session = await auth.api.getSession({
@@ -89,13 +89,16 @@ export async function clockIn(lat: number, lng: number) {
       return { success: false, message: "Anda sudah absen masuk hari ini" };
     }
 
+    const cleanUserLat = (typeof lat === 'number' && !isNaN(lat) && lat !== 0) ? lat : null;
+    const cleanUserLng = (typeof lng === 'number' && !isNaN(lng) && lng !== 0) ? lng : null;
+
     // Simpan ke DB
     await db.insert(attendances).values({
       userId: session.user.id,
       date: new Date(),
       checkInTime: new Date(),
-      latitude: lat,
-      longitude: lng,
+      latitude: cleanUserLat,
+      longitude: cleanUserLng,
       status: 'present' // Default status
     });
 
@@ -106,7 +109,7 @@ export async function clockIn(lat: number, lng: number) {
   }
 }
 
-export async function clockOut(lat: number, lng: number) {
+export async function clockOut(lat?: number, lng?: number) {
   try {
     // Dapatkan session pengguna
     const session = await auth.api.getSession({

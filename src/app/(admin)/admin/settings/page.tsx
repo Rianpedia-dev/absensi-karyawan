@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { getOfficeConfig, updateOfficeConfig, getDemoConfig, updateDemoConfig, type DemoConfig } from '@/actions/settings';
+import { getOfficeConfig, updateOfficeConfig, toggleGeofencing, getDemoConfig, updateDemoConfig, type DemoConfig } from '@/actions/settings';
 import { toast } from 'sonner';
 import { MapPin, Save, Loader2, Sparkles, Shield, UserCheck, EyeOff, CheckCircle2 } from 'lucide-react';
 import { useSession } from '@/lib/auth-client';
@@ -26,6 +26,7 @@ export default function AdminSettingsPage() {
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [savingGeofencing, setSavingGeofencing] = useState(false);
     const [config, setConfig] = useState({
         latitude: '',
         longitude: '',
@@ -65,6 +66,22 @@ export default function AdminSettingsPage() {
             toast.error('Gagal memuat konfigurasi');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleToggleGeofencing = async (checked: boolean) => {
+        setSavingGeofencing(true);
+        setConfig(prev => ({ ...prev, enabled: checked }));
+        try {
+            const res = await toggleGeofencing(checked);
+            if (res.success) {
+                toast.success(res.message);
+            }
+        } catch (error: any) {
+            setConfig(prev => ({ ...prev, enabled: !checked }));
+            toast.error(error.message || 'Gagal mengubah status geofencing');
+        } finally {
+            setSavingGeofencing(false);
         }
     };
 
@@ -171,13 +188,19 @@ export default function AdminSettingsPage() {
                             Lokasi & Radius Absensi
                         </CardTitle>
                         <div className="flex items-center gap-2">
+                            {savingGeofencing && <Loader2 className="w-4 h-4 animate-spin text-blue-600" />}
                             <Switch
                                 id="geofencing-mode"
                                 checked={config.enabled}
-                                onCheckedChange={(checked) => setConfig({ ...config, enabled: checked })}
+                                disabled={savingGeofencing}
+                                onCheckedChange={handleToggleGeofencing}
                             />
-                            <Label htmlFor="geofencing-mode" className="text-sm font-medium">
-                                {config.enabled ? 'Aktif' : 'Nonaktif'}
+                            <Label htmlFor="geofencing-mode" className="text-sm font-medium cursor-pointer">
+                                {config.enabled ? (
+                                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Aktif</span>
+                                ) : (
+                                    <span className="text-slate-400">Nonaktif</span>
+                                )}
                             </Label>
                         </div>
                     </div>
