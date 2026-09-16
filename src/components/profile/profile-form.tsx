@@ -36,11 +36,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
         const file = e.target.files?.[0];
         if (file) {
             if (file.size > 2 * 1024 * 1024) {
-                toast.error('Ukuran file maksimal 2MB');
+                toast.error('Ukuran file foto maksimal 2MB');
                 return;
             }
             setImageFile(file);
             setPreviewUrl(URL.createObjectURL(file));
+            toast.info('Foto profil dipilih. Klik "Simpan Perubahan" untuk memperbarui.');
         }
     };
 
@@ -72,6 +73,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!name.trim()) {
+            toast.error('Nama lengkap tidak boleh kosong');
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -85,9 +92,9 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
             // 2. Update user profile
             await authClient.updateUser({
-                name: name,
+                name: name.trim(),
                 // @ts-ignore - department is an additional field
-                department: department,
+                department: department.trim(),
                 image: imageUrl || undefined,
             });
 
@@ -103,8 +110,19 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
     const handleChangePassword = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!currentPassword) {
+            toast.error('Kata sandi saat ini harus diisi');
+            return;
+        }
+
+        if (newPassword.length < 8) {
+            toast.error('Kata sandi baru minimal 8 karakter');
+            return;
+        }
+
         if (newPassword !== confirmPassword) {
-            toast.error('Konfirmasi kata sandi tidak cocok');
+            toast.error('Konfirmasi kata sandi baru tidak cocok');
             return;
         }
 

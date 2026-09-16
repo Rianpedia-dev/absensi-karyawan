@@ -25,13 +25,15 @@ import {
 } from '@/components/ui/dialog';
 import { getUsers, createUser, updateUser, deleteUser, resetUserPassword } from '@/actions/user';
 import { PasswordInput } from '@/components/ui/password-input';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function EmployeeManagementPage() {
   const { data: session, isPending } = useSession();
   const [employees, setEmployees] = useState<any[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<any>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // State untuk form
   const [name, setName] = useState('');
@@ -48,7 +50,7 @@ export default function EmployeeManagementPage() {
       setEmployees(users);
     } catch (error) {
       console.error('Error loading employees:', error);
-      alert('Gagal memuat data karyawan');
+      toast.error('Gagal memuat data karyawan');
     }
   };
 
@@ -59,24 +61,54 @@ export default function EmployeeManagementPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!name.trim()) {
+      toast.error('Nama lengkap harus diisi');
+      return;
+    }
+
+    if (!email.trim() || !email.includes('@')) {
+      toast.error('Email tidak valid');
+      return;
+    }
+
+    if (!department.trim()) {
+      toast.error('Departemen harus diisi');
+      return;
+    }
+
+    if (!editingEmployee) {
+      if (!password) {
+        toast.error('Kata sandi harus diisi untuk karyawan baru');
+        return;
+      }
+      if (password.length < 8) {
+        toast.error('Kata sandi minimal 8 karakter');
+        return;
+      }
+    }
+
+    setIsSaving(true);
+
     try {
       if (editingEmployee) {
         // Update existing employee
         await updateUser(editingEmployee.id, {
-          name,
-          email,
+          name: name.trim(),
+          email: email.trim(),
           role: role as any,
-          department
+          department: department.trim(),
         });
+        toast.success('Data karyawan berhasil diperbarui!');
       } else {
         // Create new employee
         await createUser({
-          name,
-          email,
-          password: password || 'defaultPassword123',
+          name: name.trim(),
+          email: email.trim(),
+          password: password,
           role: role as any,
-          department
+          department: department.trim(),
         });
+        toast.success('Karyawan baru berhasil ditambahkan!');
       }
 
       // Reset form
@@ -92,7 +124,9 @@ export default function EmployeeManagementPage() {
       loadEmployees();
     } catch (error: any) {
       console.error('Error saving employee:', error);
-      alert(error.message || 'Gagal menyimpan data karyawan');
+      toast.error(error.message || 'Gagal menyimpan data karyawan');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -109,10 +143,11 @@ export default function EmployeeManagementPage() {
     if (window.confirm('Apakah Anda yakin ingin menghapus karyawan ini?')) {
       try {
         await deleteUser(id);
+        toast.success('Karyawan berhasil dihapus!');
         loadEmployees(); // Refresh data
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error deleting employee:', error);
-        alert('Gagal menghapus karyawan');
+        toast.error(error.message || 'Gagal menghapus karyawan');
       }
     }
   };
@@ -122,13 +157,13 @@ export default function EmployeeManagementPage() {
       try {
         const result = await resetUserPassword(id);
         if (result.success) {
-          alert(result.message);
+          toast.success(result.message || 'Password berhasil direset!');
         } else {
-          alert('Gagal mereset password');
+          toast.error('Gagal mereset password');
         }
       } catch (error: any) {
         console.error('Error resetting password:', error);
-        alert(error.message || 'Gagal mereset password');
+        toast.error(error.message || 'Gagal mereset password');
       }
     }
   };
@@ -235,11 +270,18 @@ export default function EmployeeManagementPage() {
                 </div>
 
                 <div className="flex justify-end space-x-2 pt-4">
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  <Button type="button" variant="outline" disabled={isSaving} onClick={() => setIsDialogOpen(false)}>
                     Batal
                   </Button>
-                  <Button type="submit">
-                    {editingEmployee ? 'Update' : 'Simpan'}
+                  <Button type="submit" disabled={isSaving}>
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {editingEmployee ? 'Memperbarui...' : 'Menyimpan...'}
+                      </>
+                    ) : (
+                      editingEmployee ? 'Update' : 'Simpan'
+                    )}
                   </Button>
                 </div>
               </form>

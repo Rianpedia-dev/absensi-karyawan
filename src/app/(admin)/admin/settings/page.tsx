@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 
 import { Switch } from '@/components/ui/switch';
 import dynamic from 'next/dynamic';
+import { getCurrentLocation } from '@/lib/geolocation';
 
 const MapPicker = dynamic(() => import('@/components/ui/map-picker'), {
     ssr: false,
@@ -85,22 +86,38 @@ export default function AdminSettingsPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setSaving(true);
 
         const lat = parseFloat(config.latitude);
         const lng = parseFloat(config.longitude);
         const rad = parseFloat(config.radius);
 
-        if (config.enabled && (isNaN(lat) || isNaN(lng) || isNaN(rad))) {
-            toast.error('Mohon masukkan angka yang valid');
-            setSaving(false);
-            return;
+        if (config.enabled) {
+            if (isNaN(lat) || isNaN(lng) || isNaN(rad)) {
+                toast.error('Mohon masukkan angka koordinat dan radius yang valid');
+                return;
+            }
+            if (rad <= 0) {
+                toast.error('Radius toleransi harus lebih besar dari 0 meter');
+                return;
+            }
+            if (lat < -90 || lat > 90) {
+                toast.error('Latitude harus berada dalam rentang -90 hingga 90 derajat');
+                return;
+            }
+            if (lng < -180 || lng > 180) {
+                toast.error('Longitude harus berada dalam rentang -180 hingga 180 derajat');
+                return;
+            }
         }
+
+        setSaving(true);
 
         try {
             const result = await updateOfficeConfig(lat, lng, rad, config.enabled);
             if (result.success) {
-                toast.success(result.message);
+                toast.success(result.message || 'Konfigurasi kantor berhasil disimpan');
+            } else {
+                toast.error(result.message || 'Gagal menyimpan konfigurasi');
             }
         } catch (error: any) {
             toast.error(error.message || 'Gagal menyimpan konfigurasi');
@@ -109,26 +126,19 @@ export default function AdminSettingsPage() {
         }
     };
 
-    const handleGetCurrentLocation = () => {
-        if (!navigator.geolocation) {
-            toast.error('Geolocation tidak didukung oleh browser ini');
-            return;
+    const handleGetCurrentLocation = async () => {
+        toast.info('Mengambil lokasi GPS saat ini...');
+        try {
+            const position = await getCurrentLocation();
+            setConfig(prev => ({
+                ...prev,
+                latitude: position.latitude.toString(),
+                longitude: position.longitude.toString(),
+            }));
+            toast.success('Lokasi kantor berhasil diambil dari GPS!');
+        } catch (error: any) {
+            toast.error(error.message || 'Gagal mengambil lokasi saat ini');
         }
-
-        toast.info('Mengambil lokasi saat ini...');
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                setConfig(prev => ({
-                    ...prev,
-                    latitude: position.coords.latitude.toString(),
-                    longitude: position.coords.longitude.toString(),
-                }));
-                toast.success('Lokasi berhasil diambil!');
-            },
-            (error) => {
-                toast.error('Gagal mengambil lokasi: ' + error.message);
-            }
-        );
     };
 
     if (isPending || loading) {

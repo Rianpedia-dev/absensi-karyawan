@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, Calendar, FileText, TrendingUp, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
+import { Users, Calendar, FileText, TrendingUp, CheckCircle2, AlertCircle, Clock, RefreshCw } from 'lucide-react';
 import { formatTime, formatDateOnly, cn } from '@/lib/utils';
 import { getAdminStats, getTodayAttendance } from '@/actions/attendance';
+import { toast } from 'sonner';
 
 export default function AdminDashboardPage() {
   const { data: session, isPending } = useSession();
@@ -17,27 +18,38 @@ export default function AdminDashboardPage() {
   } | null>(null);
   const [todayAttendance, setTodayAttendance] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState('');
 
-  const loadData = async () => {
+  const loadData = async (isUserAction = false) => {
     try {
-      setLoading(true);
+      if (isUserAction) setIsRefreshing(true);
+      else setLoading(true);
+
       const [statsData, attendanceData] = await Promise.all([
         getAdminStats(),
         getTodayAttendance()
       ]);
       setStats(statsData);
       setTodayAttendance(attendanceData);
+      setError('');
+
+      if (isUserAction) {
+        toast.success('Data dashboard berhasil diperbarui!');
+      }
     } catch (err: any) {
-      setError(err.message || 'Gagal memuat data dashboard');
+      const msg = err.message || 'Gagal memuat data dashboard';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
   };
 
   useEffect(() => {
     if (session?.user?.id && session.user.role === 'admin') {
-      loadData();
+      loadData(false);
     }
   }, [session?.user?.id]);
 
@@ -59,11 +71,12 @@ export default function AdminDashboardPage() {
             {formatDateOnly(new Date())}
           </div>
           <button
-            onClick={loadData}
-            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-500"
+            onClick={() => loadData(true)}
+            disabled={isRefreshing}
+            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-500 disabled:opacity-50 cursor-pointer"
             title="Refresh Data"
           >
-            <TrendingUp className="h-4 w-4" />
+            <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin text-blue-600")} />
           </button>
         </div>
       </div>

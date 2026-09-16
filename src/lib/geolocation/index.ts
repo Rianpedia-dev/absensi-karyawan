@@ -33,7 +33,7 @@ export function calculateDistance(
 export function getCurrentLocation(): Promise<{ latitude: number; longitude: number }> {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      reject(new Error('Geolocation is not supported by this browser.'));
+      reject(new Error('Geolocation tidak didukung oleh browser ini.'));
       return;
     }
 
@@ -45,7 +45,22 @@ export function getCurrentLocation(): Promise<{ latitude: number; longitude: num
         });
       },
       (error) => {
-        reject(error);
+        let message = 'Gagal mendeteksi lokasi.';
+        switch (error.code) {
+          case 1: // PERMISSION_DENIED
+            message = 'Izin akses lokasi ditolak. Harap izinkan akses lokasi (GPS) di browser Anda untuk melakukan absensi.';
+            break;
+          case 2: // POSITION_UNAVAILABLE
+            message = 'Informasi lokasi tidak tersedia. Pastikan GPS perangkat Anda aktif.';
+            break;
+          case 3: // TIMEOUT
+            message = 'Waktu permintaan lokasi habis (timeout). Silakan coba lagi.';
+            break;
+          default:
+            message = error.message || 'Terjadi kesalahan saat mengambil lokasi.';
+            break;
+        }
+        reject(new Error(message));
       },
       {
         enableHighAccuracy: true,

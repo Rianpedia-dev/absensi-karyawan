@@ -14,6 +14,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { formatTime, formatDateOnly } from '@/lib/utils';
 import { getUserAttendanceHistory } from '@/actions/attendance';
+import { toast } from 'sonner';
 
 export default function HistoryPage() {
   const { data: session, isPending } = useSession();
@@ -30,7 +31,9 @@ export default function HistoryPage() {
       const history = await getUserAttendanceHistory(session.user.id, 30);
       setAttendanceHistory(history);
     } catch (err: any) {
-      setError(err.message || 'Terjadi kesalahan saat memuat riwayat absensi');
+      const msg = err.message || 'Terjadi kesalahan saat memuat riwayat absensi';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

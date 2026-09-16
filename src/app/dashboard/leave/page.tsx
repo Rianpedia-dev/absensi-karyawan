@@ -19,6 +19,8 @@ import {
 } from '@/components/ui/table';
 import { formatDateOnly } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 export default function LeavePage() {
   const { data: session, isPending } = useSession();
@@ -30,28 +32,41 @@ export default function LeavePage() {
   const [success, setSuccess] = useState('');
   const [myLeaves, setMyLeaves] = useState<any[]>([]);
   const [isFormVisible, setIsFormVisible] = useState(false);
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
+    // Validasi tanggal
+    if (!startDate || !endDate) {
+      const msg = 'Tanggal mulai dan akhir harus diisi';
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    if (!reason.trim()) {
+      const msg = 'Alasan pengajuan cuti harus diisi';
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (start > end) {
+      const msg = 'Tanggal mulai harus sebelum atau sama dengan tanggal akhir';
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
-      // Validasi tanggal
-      if (!startDate || !endDate) {
-        setError('Tanggal mulai dan akhir harus diisi');
-        return;
-      }
-
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-
-      if (start > end) {
-        setError('Tanggal mulai harus sebelum tanggal akhir');
-        return;
-      }
-
       // Panggil server action untuk mengajukan cuti
       const result = await requestLeave(
         leaveType,
@@ -62,18 +77,25 @@ export default function LeavePage() {
 
       if (result.success) {
         setSuccess(result.message);
+        toast.success(result.message || 'Permintaan cuti berhasil diajukan');
         // Reset form
         setLeaveType('sick');
         setStartDate('');
         setEndDate('');
         setReason('');
+        setIsFormVisible(false);
         // Muat ulang data cuti
         loadMyLeaves();
       } else {
         setError(result.message);
+        toast.error(result.message || 'Gagal mengajukan cuti');
       }
     } catch (err: any) {
-      setError(err.message || 'Terjadi kesalahan saat mengajukan cuti');
+      const msg = err.message || 'Terjadi kesalahan saat mengajukan cuti';
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -82,7 +104,9 @@ export default function LeavePage() {
       const leaves = await getMyLeaves();
       setMyLeaves(leaves);
     } catch (err: any) {
-      setError(err.message || 'Terjadi kesalahan saat memuat data cuti');
+      const msg = err.message || 'Terjadi kesalahan saat memuat data cuti';
+      setError(msg);
+      toast.error(msg);
     }
   };
 
@@ -178,10 +202,19 @@ export default function LeavePage() {
 
 
               <div className="flex justify-end gap-2 mt-4">
-                <Button variant="outline" type="button" onClick={() => setIsFormVisible(false)}>
+                <Button variant="outline" type="button" disabled={isSubmitting} onClick={() => setIsFormVisible(false)}>
                   Batal
                 </Button>
-                <Button type="submit">Ajukan Cuti</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Mengajukan...
+                    </>
+                  ) : (
+                    'Ajukan Cuti'
+                  )}
+                </Button>
               </div>
             </CardContent>
           </form>

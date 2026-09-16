@@ -18,6 +18,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { formatTime, formatDateOnly } from '@/lib/utils';
 import { getFilteredAttendance } from '@/actions/attendance';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 export default function ReportsPage() {
   const { data: session, isPending } = useSession();
@@ -26,79 +28,98 @@ export default function ReportsPage() {
   const [endDate, setEndDate] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState('all');
   const [loading, setLoading] = useState(true);
-
+  const [filtering, setFiltering] = useState(false);
 
   // Fungsi untuk memuat data laporan
-  const loadReportData = async () => {
+  const loadReportData = async (isFilterAction = false) => {
     try {
-      setLoading(true);
+      if (isFilterAction) setFiltering(true);
+      else setLoading(true);
+
       const data = await getFilteredAttendance(
         startDate || undefined,
         endDate || undefined,
         selectedDepartment
       );
       setReportData(data);
-    } catch (error) {
+
+      if (isFilterAction) {
+        toast.success(`Berhasil memuat ${data.length} data kehadiran`);
+      }
+    } catch (error: any) {
       console.error('Error loading report data:', error);
-      alert('Gagal memuat data laporan');
+      toast.error(error.message || 'Gagal memuat data laporan');
     } finally {
       setLoading(false);
+      setFiltering(false);
     }
   };
 
   useEffect(() => {
-    loadReportData();
+    loadReportData(false);
   }, []);
 
   const handleFilter = (e: React.FormEvent) => {
     e.preventDefault();
-    loadReportData();
+
+    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+      toast.error('Tanggal mulai tidak boleh lebih besar dari tanggal akhir');
+      return;
+    }
+
+    loadReportData(true);
   };
 
   const handleExport = () => {
     if (reportData.length === 0) {
-      alert('Tidak ada data untuk diekspor');
+      toast.warning('Tidak ada data kehadiran untuk diekspor');
       return;
     }
 
-    // Header CSV
-    const headers = ['Nama', 'Departemen', 'Tanggal', 'Jam Masuk', 'Jam Pulang', 'Status'];
+    try {
+      // Header CSV
+      const headers = ['Nama', 'Departemen', 'Tanggal', 'Jam Masuk', 'Jam Pulang', 'Status'];
 
-    // Konversi status ke bahasa Indonesia
-    const getStatusLabel = (status: string) => {
-      switch (status) {
-        case 'present': return 'Hadir';
-        case 'late': return 'Terlambat';
-        case 'early_departure': return 'Pulang Awal';
-        case 'absent': return 'Tidak Hadir';
-        default: return status;
-      }
-    };
+      // Konversi status ke bahasa Indonesia
+      const getStatusLabel = (status: string) => {
+        switch (status) {
+          case 'present': return 'Hadir';
+          case 'late': return 'Terlambat';
+          case 'early_departure': return 'Pulang Awal';
+          case 'absent': return 'Tidak Hadir';
+          default: return status;
+        }
+      };
 
-    // Buat isi CSV
-    const csvContent = [
-      headers.join(';'), // Menggunakan titik koma sebagai pemisah untuk kompatibilitas Excel di regional Indonesia
-      ...reportData.map(record => [
-        `"${record.user?.name || '-'}"`,
-        `"${record.user?.department || '-'}"`,
-        `"${formatDateOnly(new Date(record.date))}"`,
-        `"${record.checkInTime ? formatTime(new Date(record.checkInTime)) : '-'}"`,
-        `"${record.checkOutTime ? formatTime(new Date(record.checkOutTime)) : '-'}"`,
-        `"${getStatusLabel(record.status)}"`
-      ].join(';'))
-    ].join('\n');
+      // Buat isi CSV
+      const csvContent = [
+        headers.join(';'), // Menggunakan titik koma sebagai pemisah untuk kompatibilitas Excel di regional Indonesia
+        ...reportData.map(record => [
+          `"${record.user?.name || '-'}"`,
+          `"${record.user?.department || '-'}"`,
+          `"${formatDateOnly(new Date(record.date))}"`,
+          `"${record.checkInTime ? formatTime(new Date(record.checkInTime)) : '-'}"`,
+          `"${record.checkOutTime ? formatTime(new Date(record.checkOutTime)) : '-'}"`,
+          `"${getStatusLabel(record.status)}"`
+        ].join(';'))
+      ].join('\n');
 
-    // Tambahkan Byte Order Mark (BOM) agar Excel mengenali encoding UTF-8 dengan benar
-    const BOM = '\uFEFF';
-    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `laporan-absensi-${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      // Tambahkan Byte Order Mark (BOM) agar Excel mengenali encoding UTF-8 dengan benar
+      const BOM = '\uFEFF';
+      const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `laporan-absensi-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success('Laporan kehadiran berhasil diekspor ke CSV!');
+    } catch (err: any) {
+      toast.error('Gagal mengekspor laporan: ' + err.message);
+    }
   };
 
   if (isPending || loading) {
@@ -158,7 +179,16 @@ export default function ReportsPage() {
             </div>
 
             <div className="flex items-end space-x-2">
-              <Button type="submit">Terapkan Filter</Button>
+              <Button type="submit" disabled={filtering}>
+                {filtering ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Memfilter...
+                  </>
+                ) : (
+                  'Terapkan Filter'
+                )}
+              </Button>
               <Button type="button" variant="outline" onClick={handleExport}>Ekspor ke CSV</Button>
             </div>
           </form>

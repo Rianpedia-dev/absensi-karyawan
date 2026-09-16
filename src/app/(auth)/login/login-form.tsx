@@ -17,6 +17,7 @@ import { signIn, authClient, type ExtendedUser } from '@/lib/auth-client';
 import { PasswordInput } from '@/components/ui/password-input';
 import type { DemoConfig } from '@/actions/settings';
 import { Sparkles, ShieldCheck, UserCheck, Check, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface LoginFormProps {
   initialDemoConfig: DemoConfig;
@@ -42,12 +43,21 @@ export function LoginForm({ initialDemoConfig }: LoginFormProps) {
     }
     setSelectedDemo(type);
     setError('');
+    toast.info(`Akun demo ${type === 'admin' ? 'Admin' : 'Pegawai'} dipilih`);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setError('');
+
+    if (!email.trim() || !password) {
+      const msg = 'Email dan kata sandi harus diisi.';
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
       const response = await signIn.email({
@@ -56,9 +66,13 @@ export function LoginForm({ initialDemoConfig }: LoginFormProps) {
       });
 
       if (response?.error) {
-        setError(response.error.message || 'Login gagal. Periksa kembali email dan kata sandi.');
+        const errorMsg = response.error.message || 'Login gagal. Periksa kembali email dan kata sandi.';
+        setError(errorMsg);
+        toast.error('Gagal Masuk', { description: errorMsg });
         setIsSubmitting(false);
       } else {
+        toast.success('Login Berhasil!', { description: 'Mengalihkan ke dashboard...' });
+
         // Fetch session to get user role
         const { data: session } = await authClient.getSession();
 
@@ -71,7 +85,9 @@ export function LoginForm({ initialDemoConfig }: LoginFormProps) {
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError('Terjadi kesalahan saat login. Silakan coba lagi.');
+      const errorMsg = 'Terjadi kesalahan saat login. Silakan coba lagi.';
+      setError(errorMsg);
+      toast.error('Error', { description: errorMsg });
       setIsSubmitting(false);
     }
   };

@@ -13,19 +13,28 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { User } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function Navbar() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
 
   const handleLogout = async () => {
-    await signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          router.push('/login');
+    try {
+      await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            toast.success('Berhasil keluar (logout)');
+            router.push('/login');
+          },
+          onError: (ctx) => {
+            toast.error(ctx.error?.message || 'Gagal keluar akun');
+          },
         },
-      },
-    });
+      });
+    } catch {
+      toast.error('Terjadi kesalahan saat keluar');
+    }
   };
 
   if (isPending) {
